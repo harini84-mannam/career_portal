@@ -1,0 +1,73 @@
+{% extends "screening/base.html" %}
+{% block title %}Applicants - {{ job.title }}{% endblock %}
+{% block head %}
+<style>
+  .page-head { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; padding:58px 0 28px; }
+  .page-head h1 { font-size:clamp(2.4rem,5vw,4rem); margin-top:14px; }
+  .page-head p { color:var(--muted); margin:16px 0 0; font-size:14px; }
+  .filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+  .filter { padding:8px 12px; border:1px solid var(--line-strong); border-radius:999px; color:var(--muted); font-family:var(--mono); font-size:10px; text-decoration:none; text-transform:uppercase; letter-spacing:.05em; }
+  .filter.active,.filter:hover { background:rgba(24,169,153,.1); border-color:var(--teal); color:var(--teal-deep); }
+  .applicant-list { background:var(--canvas-raised); border:1px solid var(--line); border-radius:22px; overflow:hidden; }
+  .applicant-row { display:grid; grid-template-columns:56px minmax(0,1fr) 120px 135px; align-items:center; gap:18px; padding:20px 24px; border-bottom:1px solid rgba(218,219,212,.75); text-decoration:none; }
+  .applicant-row:last-child { border-bottom:none; }
+  .applicant-row:hover { background:#fffefa; }
+  .rank { width:38px; height:38px; display:grid; place-items:center; border-radius:12px; background:var(--panel); color:#fff; font-family:var(--mono); font-size:12px; }
+  .candidate-name { font-family:var(--display); font-size:16px; font-weight:800; letter-spacing:-.03em; margin-bottom:5px; }
+  .candidate-sub { color:var(--muted); font-size:12px; }
+  .candidate-skills { color:var(--teal-deep); font-size:11px; margin-top:6px; }
+  .candidate-flag { color:var(--red-flag); font-size:11px; margin-top:6px; font-weight:700; }
+  .score-box { text-align:right; }
+  .score-number { color:var(--teal-deep); font-family:var(--mono); font-size:22px; font-weight:600; }
+  .score-number.flagged { color:var(--red-flag); }
+  .score-label { color:var(--subtle); font-size:10px; text-transform:uppercase; }
+  .status { display:inline-flex; padding:6px 9px; border-radius:999px; font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.04em; }
+  .status-applied { background:rgba(0, 174, 239, 0.1); color:var(--brand-cyan); }
+  .status-processing { background:rgba(24, 169, 153, 0.1); color: #18a999; }
+  .status-hired { background:rgba(24, 169, 153, 0.1); color: #18a999; }
+  .status-rejected { background:rgba(237, 28, 36, 0.1); color: var(--brand-red); }
+  .empty { padding:66px 30px; text-align:center; color:var(--muted); }
+  .empty strong { display:block; color:var(--ink); font-family:var(--display); font-size:21px; margin-bottom:8px; }
+  .pagination { display:flex; align-items:center; justify-content:center; gap:14px; padding:22px 24px; }
+  .pagination a, .pagination span.current { font-family:var(--mono); font-size:12px; font-weight:800; color:var(--ink); text-decoration:none; padding:8px 14px; border-radius:9px; border:1px solid var(--line-strong); }
+  .pagination a:hover { background:#fffefa; }
+  .pagination span.current { background:var(--teal); color:#fff; border-color:var(--teal); }
+  .pagination span.disabled { color:var(--muted); padding:8px 14px; font-family:var(--mono); font-size:12px; }
+  @media(max-width:700px){ .page-head{align-items:flex-start; flex-direction:column;} .applicant-row{grid-template-columns:42px 1fr auto; gap:12px; padding:17px;} .applicant-row .status-wrap{grid-column:2/-1;} .score-box{grid-column:3; grid-row:1/3;} }
+</style>
+{% endblock %}
+{% block content %}
+<a href="{% url 'my_jobs' %}" class="btn-back">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+  Back to all jobs
+</a>
+<section class="page-head">
+  <div>
+    <span class="eyebrow">HR / Review queue</span>
+    <h1>{{ job.title }}</h1>
+    <p>{{ job.company }} &middot; {{ job.applications.count }} applicant{{ job.applications.count|pluralize }} &middot; ranked by match score{% if page_obj.paginator.count %} &middot; showing {{ page_obj.start_index }}&ndash;{{ page_obj.end_index }} of {{ page_obj.paginator.count }}{% endif %}</p>
+  </div>
+</section>
+
+<div class="filters"><a class="filter {% if not status_filter %}active{% endif %}" href="{% url 'applicant_list' job.id %}">All applicants</a><a class="filter {% if status_filter == 'applied' %}active{% endif %}" href="?status=applied">Applied</a><a class="filter {% if status_filter == 'processing' %}active{% endif %}" href="?status=processing">Processing</a><a class="filter {% if status_filter == 'rejected' %}active{% endif %}" href="?status=rejected">Rejected</a></div>
+
+<div class="applicant-list">
+  {% if applications %}
+    {% for application in applications %}
+      <a class="applicant-row" href="{% url 'application_detail' application.id %}">
+        <div class="rank">#{{ page_obj.start_index|add:forloop.counter0 }}</div>
+        <div><div class="candidate-name">{{ application.candidate.user.get_full_name|default:application.candidate.user.username }}</div><div class="candidate-sub">{{ application.candidate.user.email }} &middot; Applied {{ application.applied_at|date:"M d, Y" }}</div>{% if application.match_details.error %}<div class="candidate-flag">⚠ Screening failed &mdash; not a real score</div>{% elif application.match_details.matched_skills %}<div class="candidate-skills">Matches: {{ application.match_details.matched_skills|join:", " }}</div>{% endif %}</div>
+        <div class="score-box"><div class="score-number{% if application.match_details.error %} flagged{% endif %}">{{ application.match_score|floatformat:0 }}%</div><div class="score-label">{% if application.match_details.error %}screening error{% else %}match score{% endif %}</div></div>
+        <div class="status-wrap"><span class="status status-{{ application.status }}">{{ application.get_status_display }}</span></div>
+      </a>
+    {% endfor %}
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="pagination" aria-label="Applicant list pages">
+      {% if page_obj.has_previous %}<a href="?{% if status_filter %}status={{ status_filter }}&{% endif %}page={{ page_obj.previous_page_number }}">&larr; Prev</a>{% else %}<span class="disabled">&larr; Prev</span>{% endif %}
+      <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?{% if status_filter %}status={{ status_filter }}&{% endif %}page={{ page_obj.next_page_number }}">Next &rarr;</a>{% else %}<span class="disabled">Next &rarr;</span>{% endif %}
+    </nav>
+    {% endif %}
+  {% else %}<div class="empty"><strong>No applicants in this view.</strong>Once candidates apply, they will be ranked against the job brief here.</div>{% endif %}
+</div>
+{% endblock %}

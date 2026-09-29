@@ -1,0 +1,72 @@
+{% extends "screening/base.html" %}
+{% block title %}Career Portal - Meslova Systems{% endblock %}
+{% block head %}
+<style>
+  .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; align-items: center; gap: 60px; padding: 120px 0 100px; }
+  .hero-copy { max-width: 600px; }
+  .hero-copy .eyebrow { margin-bottom: 24px; }
+  .hero-copy h1 { font-size: clamp(3.5rem, 8vw, 7.5rem); line-height: 0.9; margin-bottom: 40px; letter-spacing: -0.06em; font-weight: 800; }
+  .hero-copy h1 span { color: var(--brand-cyan); }
+  .hero-copy p { font-size: 1.15rem; color: var(--muted); line-height: 1.7; margin-bottom: 0; max-width: 520px; }
+  
+  .hero-visual { position: relative; }
+  .dark-card { background: #0c151c; border-radius: 40px; padding: 50px; position: relative; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.25); aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; }
+  .dark-card::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 70% 30%, rgba(24,169,153,0.18), transparent 70%); }
+  
+  .graph-container { width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
+  .graph-bars { display: flex; align-items: flex-end; gap: 18px; height: 140px; position: relative; z-index: 2; }
+  .bar { width: 14px; background: rgba(255,255,255,0.06); border-radius: 7px; position: relative; }
+  .bar-fill { position: absolute; bottom: 0; left: 0; width: 100%; border-radius: 7px; background: var(--teal); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; position: absolute; left: 50%; transform: translateX(-50%); }
+  .dot-blue { background: var(--brand-blue); box-shadow: 0 0 12px var(--brand-blue); }
+  .dot-cyan { background: var(--brand-cyan); box-shadow: 0 0 12px var(--brand-cyan); }
+  .dot-yellow { background: var(--brand-yellow); box-shadow: 0 0 12px var(--brand-yellow); }
+  .dot-orange { background: var(--brand-orange); box-shadow: 0 0 12px var(--brand-orange); }
+  .dot-red { background: var(--brand-red); box-shadow: 0 0 12px var(--brand-red); }
+
+  .card-label { position: absolute; bottom: 45px; right: 45px; text-align: left; max-width: 200px; z-index: 3; }
+  .card-label b { display: block; color: var(--brand-cyan); font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; margin-bottom: 10px; text-transform: uppercase; }
+  .card-label p { color: rgba(245,243,237,0.65); font-size: 12px; line-height: 1.6; margin: 0; }
+
+  .visual-lines { position: absolute; inset: 0; z-index: 1; opacity: 0.2; }
+  
+  @media (max-width: 960px) {
+    .hero { grid-template-columns: 1fr; padding-top: 80px; text-align: center; }
+    .hero-copy { max-width: 100%; margin: 0 auto; }
+    .hero-copy p { margin: 0 auto; }
+    .card-label { right: 50%; transform: translateX(50%); text-align: center; bottom: 30px; }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <span class="eyebrow">AI Everywhere!</span>
+    <h1>Intelligent Platforms for <span>Human Value</span></h1>
+    <p>Discover your next challenge at Meslova Systems. We use intelligent platforms to find the perfect match between talent and opportunity, ensuring your unique skills create lasting human value.</p>
+  </div>
+  <div class="hero-visual">
+    <div class="dark-card">
+      <div class="visual-lines">
+        <svg width="100%" height="100%" viewBox="0 0 400 250">
+            <path d="M50,150 Q150,100 250,150 T450,150" fill="none" stroke="white" stroke-width="0.5" />
+            <path d="M0,170 Q150,130 300,170 T600,170" fill="none" stroke="rgba(24,169,153,0.4)" stroke-width="0.5" />
+        </svg>
+      </div>
+      <div class="graph-container">
+        <div class="graph-bars">
+            <div class="bar" style="height: 70px;"><div class="bar-fill" style="height: 45%; background: var(--brand-blue);"></div><div class="dot dot-blue" style="bottom: 45%;"></div></div>
+            <div class="bar" style="height: 90px;"><div class="bar-fill" style="height: 75%; background: var(--brand-cyan);"></div><div class="dot dot-cyan" style="bottom: 75%;"></div></div>
+            <div class="bar" style="height: 60px;"><div class="bar-fill" style="height: 35%; background: var(--brand-yellow);"></div><div class="dot dot-yellow" style="bottom: 35%;"></div></div>
+            <div class="bar" style="height: 110px;"><div class="bar-fill" style="height: 90%; background: var(--brand-orange);"></div><div class="dot dot-orange" style="bottom: 90%;"></div></div>
+            <div class="bar" style="height: 80px;"><div class="bar-fill" style="height: 60%; background: var(--brand-red);"></div><div class="dot dot-red" style="bottom: 60%;"></div></div>
+        </div>
+      </div>
+      <div class="card-label">
+        <b>FIND YOUR FIT</b>
+        <p>Intelligent matching that values your unique expertise and potential.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "screening/base.html" %}
+{% block title %}Candidate Directory - Meslova Systems{% endblock %}
+{% block head %}
+<style>
+  .page-head { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; padding:58px 0 28px; flex-wrap:wrap; }
+  .page-head h1 { font-size:clamp(2.4rem,5vw,4rem); margin-top:14px; }
+  .page-head p { color:var(--muted); margin:16px 0 0; font-size:14px; max-width:560px; }
+  .search-form { display:flex; gap:8px; }
+  .search-input { padding:12px 16px; border:1px solid var(--line-strong); border-radius:12px; font:inherit; font-size:13px; min-width:260px; background:#fff; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 20px; border-radius:12px; font-weight:700; font-size:13px; text-decoration:none; border:1px solid transparent; cursor:pointer; }
+  .btn-primary { background:var(--teal); color:#fff; border-color:var(--teal); }
+  .btn-primary:hover { background:#159d8e; }
+  .candidate-list { background:var(--canvas-raised); border:1px solid var(--line); border-radius:22px; overflow:hidden; }
+  .candidate-row { display:grid; grid-template-columns:minmax(0,1fr) 140px 130px 140px; align-items:center; gap:18px; padding:22px 26px; border-bottom:1px solid rgba(218,219,212,.75); text-decoration:none; color:inherit; }
+  .candidate-row:last-child { border-bottom:none; }
+  .candidate-row:hover { background:#fffefa; }
+  .candidate-name { font-family:var(--display); font-size:16px; font-weight:800; letter-spacing:-.03em; margin-bottom:5px; }
+  .candidate-sub { color:var(--muted); font-size:12px; }
+  .candidate-skills { color:var(--teal-deep); font-size:11px; margin-top:6px; }
+  .candidate-exp { font-family:var(--mono); font-size:12px; color:var(--ink); }
+  .candidate-applied { font-family:var(--mono); font-size:11px; }
+  .candidate-applied.has-applied { color:var(--teal-deep); }
+  .candidate-applied.no-applied { color:var(--muted); }
+  .candidate-joined { color:var(--muted); font-size:12px; text-align:right; }
+  .empty { padding:68px 30px; text-align:center; color:var(--muted); }
+  .empty h3 { color:var(--ink); font-family:var(--display); font-size:22px; margin-bottom:8px; }
+  .pagination { display:flex; align-items:center; justify-content:center; gap:14px; padding:22px 24px; }
+  .pagination a, .pagination span.current { font-family:var(--mono); font-size:12px; font-weight:800; color:var(--ink); text-decoration:none; padding:8px 14px; border-radius:9px; border:1px solid var(--line-strong); }
+  .pagination a:hover { background:#fffefa; }
+  .pagination span.current { background:var(--teal); color:#fff; border-color:var(--teal); }
+  .pagination span.disabled { color:var(--muted); padding:8px 14px; font-family:var(--mono); font-size:12px; }
+  @media(max-width:760px){ .page-head{align-items:flex-start; flex-direction:column;} .search-input{min-width:0; flex:1;} .candidate-row{grid-template-columns:1fr auto; gap:10px 16px; padding:18px;} .candidate-exp,.candidate-applied,.candidate-joined{font-size:11px; text-align:left;} }
+</style>
+{% endblock %}
+{% block content %}
+<a href="{% url 'hr_dashboard' %}" class="btn-back">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+  Back to dashboard
+</a>
+<section class="page-head">
+  <div>
+    <span class="eyebrow">HR / Candidate directory</span>
+    <h1>Candidates.</h1>
+    <p>Everyone who has registered on Meslova, whether or not they've applied to one of your roles.{% if page_obj.paginator.count %} Showing {{ page_obj.start_index }}&ndash;{{ page_obj.end_index }} of {{ page_obj.paginator.count }}.{% endif %}</p>
+  </div>
+  <form class="search-form" method="get">
+    <input class="search-input" type="text" name="q" value="{{ query }}" placeholder="Search by name, email, or skill">
+    <button class="btn btn-primary" type="submit">Search</button>
+  </form>
+</section>
+
+<div class="candidate-list">
+  {% if candidates %}
+    {% for candidate in candidates %}
+      <a class="candidate-row" href="{% url 'candidate_directory_profile' candidate.pk %}">
+        <div>
+          <div class="candidate-name">{{ candidate.user.get_full_name|default:candidate.user.username }}</div>
+          <div class="candidate-sub">{{ candidate.user.email }}{% if candidate.headline %} &middot; {{ candidate.headline }}{% endif %}</div>
+          {% if candidate.skills %}<div class="candidate-skills">{{ candidate.skills|truncatechars:80 }}</div>{% endif %}
+        </div>
+        <div class="candidate-exp">{{ candidate.experience_years|floatformat:1 }} yrs experience</div>
+        <div class="candidate-applied {% if candidate.application_count > 0 %}has-applied{% else %}no-applied{% endif %}">
+          {% if candidate.application_count > 0 %}{{ candidate.application_count }} application{{ candidate.application_count|pluralize }}{% else %}Never applied{% endif %}
+        </div>
+        <div class="candidate-joined">Joined {{ candidate.created_at|date:"M d, Y" }}</div>
+      </a>
+    {% endfor %}
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="pagination" aria-label="Candidate list pages">
+      {% if page_obj.has_previous %}<a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}">&larr; Prev</a>{% else %}<span class="disabled">&larr; Prev</span>{% endif %}
+      <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.next_page_number }}">Next &rarr;</a>{% else %}<span class="disabled">Next &rarr;</span>{% endif %}
+    </nav>
+    {% endif %}
+  {% else %}
+    <div class="empty">
+      <h3>No candidates found.</h3>
+      {% if query %}<p>Nothing matches "{{ query }}". Try a different search.</p>{% else %}<p>Registered candidates will appear here as people sign up.</p>{% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

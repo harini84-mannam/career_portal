@@ -1,0 +1,61 @@
+{% extends "screening/base.html" %}
+{% block title %}Add Education - meslová Career Portal{% endblock %}
+{% block head %}
+<style>
+  .page-head { padding: 58px 0 28px; }
+  .page-head h1 { font-size: clamp(2rem, 5vw, 3rem); margin-top: 14px; letter-spacing: -0.04em; font-weight: 800; }
+  .form-panel { max-width: 600px; padding: 32px; background: var(--canvas-raised); border: 1px solid var(--line); border-radius: 24px; margin-bottom: 40px; }
+  .form-group { margin-bottom: 24px; }
+  .form-group label { display: block; margin-bottom: 10px; color: var(--muted); font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+  .form-control { width: 100%; padding: 14px 16px; background: #fff; border: 1px solid var(--line-strong); border-radius: 12px; font-family: var(--sans); font-size: 14px; transition: border-color 0.2s ease; }
+  .form-control:focus { outline: none; border-color: var(--brand-cyan); box-shadow: 0 0 0 4px rgba(0, 174, 239, 0.08); }
+  .form-actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; border-top: 1px solid var(--line); padding-top: 24px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 12px; font-weight: 700; font-size: 13px; text-decoration: none; border: 1px solid transparent; transition: all 0.2s var(--ease-out); cursor: pointer; }
+  .btn-primary { background: var(--brand-cyan); color: #fff; border-color: var(--brand-cyan); }
+  .btn-primary:hover { background: var(--brand-blue); border-color: var(--brand-blue); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+</style>
+{% endblock %}
+{% block content %}
+<a href="{% url 'profile_view' %}" class="btn-back">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+  Back to profile
+</a>
+<section class="page-head">
+  <span class="eyebrow">Education Details</span>
+  <h1>Add your educational background.</h1>
+</section>
+<form method="post" class="form-panel">
+  {% csrf_token %}
+  <div class="form-group">
+    <label>Highest Qualification *</label>
+    <input class="form-control" name="qualification" required placeholder="e.g. B.Tech in Computer Science">
+  </div>
+  <div class="form-group">
+    <label>University / College *</label>
+    <input class="form-control" name="institution" required placeholder="e.g. Stanford University">
+  </div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <div class="form-group">
+      <label>Grading System</label>
+      <select class="form-control" name="grading_system">
+        <option value="Percentage">Percentage</option>
+        <option value="CGPA">CGPA (out of 10)</option>
+        <option value="GPA">GPA (out of 4)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Score / Grade *</label>
+      <input class="form-control" name="score" required placeholder="e.g. 85% or 3.8">
+    </div>
+  </div>
+  <div class="form-group">
+    <label>Passing Year *</label>
+    <input class="form-control" type="number" name="passing_year" required placeholder="e.g. 2022">
+  </div>
+  <div class="form-actions">
+    <a class="btn btn-outline" href="{% url 'profile_view' %}">Cancel</a>
+    <button class="btn btn-primary" type="submit">Add Education &rarr;</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends "screening/base.html" %}
+{% block title %}Dashboard - meslová Career Portal{% endblock %}
+{% block head %}
+<style>
+  .dashboard-head { padding: 58px 0 30px; }
+  .dashboard-head h1 { font-size: clamp(2.4rem, 5vw, 4.2rem); margin-top: 14px; letter-spacing: -0.04em; font-weight: 800; }
+  .dashboard-head p { color: var(--muted); max-width: 500px; margin: 18px 0 0; font-size: 15px; line-height: 1.6; }
+  
+  .dashboard-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 12px; font-weight: 700; font-size: 13px; text-decoration: none; border: 1px solid transparent; transition: all 0.2s var(--ease-out); }
+  .btn-primary { background: var(--brand-cyan); color: #fff; border-color: var(--brand-cyan); }
+  .btn-primary:hover { background: var(--brand-blue); border-color: var(--brand-blue); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+  .btn-outline:hover { background: var(--canvas-raised); border-color: var(--ink); }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 40px; }
+  .metric { background: var(--canvas-raised); border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px; transition: all 0.2s ease; position: relative; }
+  .metric:hover { border-color: var(--brand-cyan); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(18, 32, 45, 0.06); }
+  .metric:hover .metric-arrow { opacity: 1; transform: translateX(0); }
+  .metric-link { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: inherit; text-decoration: none; }
+  .metric-link:focus-visible { outline: 3px solid rgba(0, 174, 239, 0.35); outline-offset: 4px; }
+  .metric-label { color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+  .metric-value { font-family: var(--display); font-size: 32px; font-weight: 800; letter-spacing: -0.04em; margin-top: 6px; color: var(--ink); }
+  .metric-value.is-zero { color: var(--subtle); }
+  .metric-arrow { color: var(--brand-cyan); opacity: 0; transform: translateX(-4px); transition: all 0.2s ease; flex-shrink: 0; }
+
+  .content-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; }
+  .panel { background: var(--canvas-raised); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 24px 28px; border-bottom: 1px solid var(--line); }
+  .panel-head h2 { margin: 0; font-family: var(--display); font-size: 22px; letter-spacing: -0.04em; font-weight: 700; }
+  .panel-head a { color: var(--brand-blue); font-size: 13px; font-weight: 700; text-decoration: none; }
+  .panel-head a:hover { text-decoration: underline; }
+
+  .job-card { padding: 24px 28px; border-bottom: 1px solid rgba(218,219,212,0.7); transition: background 0.2s ease; }
+  .job-card:hover { background: rgba(255,255,255,0.4); }
+  .job-card:last-child { border-bottom: none; }
+  .job-card h3 { font-family: var(--display); font-size: 18px; letter-spacing: -0.03em; margin: 0 0 6px; font-weight: 700; }
+  .job-card p { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .job-link { color: var(--brand-cyan); font-size: 13px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .job-link:hover { color: var(--brand-blue); }
+
+  .app-item { display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 20px 28px; border-bottom: 1px solid rgba(218,219,212,0.7); text-decoration: none; color: inherit; transition: background 0.2s ease; }
+  .app-item:hover { background: rgba(255,255,255,0.4); }
+  .app-item:last-child { border-bottom: none; }
+  .app-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .app-sub { font-size: 13px; color: var(--muted); }
+
+  .status { display: inline-flex; padding: 6px 12px; border-radius: 999px; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+  .status-applied { background: rgba(0, 174, 239, 0.1); color: var(--brand-cyan); }
+  .status-hired { background: rgba(24, 169, 153, 0.1); color: #18a999; }
+  .status-rejected { background: rgba(237, 28, 36, 0.1); color: var(--brand-red); }
+
+  .empty { padding: 50px 28px; text-align: center; color: var(--muted); font-size: 14px; }
+  
+  .profile-callout { padding: 28px; background: var(--panel); color: #fff; border-radius: 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; gap: 32px; }
+  .profile-callout div { flex: 1; }
+  .profile-callout h2 { font-family: var(--display); font-size: 22px; margin: 0 0 8px; font-weight: 700; }
+  .profile-callout p { color: rgba(255,255,255,0.7); font-size: 14px; margin: 0; line-height: 1.6; }
+  .profile-callout .btn { border-color: rgba(255,255,255,0.3); color: #fff; white-space: nowrap; }
+  .profile-callout .btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+
+  .hired-callout { padding: 28px; background: linear-gradient(135deg, #0f7a5c, #10a37f); color: #fff; border-radius: 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; gap: 32px; }
+  .hired-callout div { flex: 1; }
+  .hired-callout .eyebrow-light { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.75); margin-bottom: 8px; }
+  .hired-callout h2 { font-family: var(--display); font-size: 22px; margin: 0 0 8px; font-weight: 700; }
+  .hired-callout p { color: rgba(255,255,255,0.85); font-size: 14px; margin: 0; line-height: 1.6; }
+  .hired-callout .btn { background: #fff; color: #0f7a5c; white-space: nowrap; border-color: #fff; }
+  .hired-callout .btn:hover { background: rgba(255,255,255,0.9); }
+
+  @media (max-width: 900px) {
+    .content-grid { grid-template-columns: 1fr; }
+    .profile-callout { flex-direction: column; align-items: flex-start; gap: 20px; }
+  }
+  @media (max-width: 600px) {
+    .dashboard-head { padding: 40px 0 20px; }
+    .metric-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-head">
+  <span class="eyebrow" style="margin-bottom: 24px;">CANDIDATE / DASHBOARD</span>
+  <h1 style="margin-bottom: 12px;">Hi, {{ user.username|capfirst }} — ready for your next move?</h1>
+  <p style="font-size: 16px; max-width: 600px;">Track your applications, discover new opportunities, and stay on top of what’s next.</p>
+  <div class="dashboard-actions">
+    <a class="btn btn-primary" href="{% url 'browse_jobs' %}">Browse jobs &rarr;</a>
+    <a class="btn btn-outline" href="{% url 'profile_view' %}">View Profile</a>
+  </div>
+</section>
+
+{% with latest_hire=hired_applications.first %}
+{% if latest_hire %}
+<div class="hired-callout">
+  <div>
+    <span class="eyebrow-light">You got the job</span>
+    <h2>Congratulations — you're hired for {{ latest_hire.job.title }}!</h2>
+    <p>{{ latest_hire.job.company }} has marked your application as hired. Keep an eye on your email for next steps.</p>
+  </div>
+  <a class="btn" href="{% url 'my_applications' %}">View application &rarr;</a>
+</div>
+{% endif %}
+{% endwith %}
+
+{% if not profile.resume %}
+<div class="profile-callout">
+  <div>
+    <h2>Complete your profile before applying.</h2>
+    <p>Add your resume, headline, and core skills once. You can reuse them across every role.</p>
+  </div>
+  <a class="btn btn-outline" href="{% url 'profile_view' %}">Complete profile &rarr;</a>
+</div>
+{% endif %}
+
+<section style="margin-bottom: 56px;">
+  <h2 style="font-family: var(--display); font-size: 20px; font-weight: 700; margin-bottom: 20px;">Your activity</h2>
+  <div class="metric-grid" style="grid-template-columns: repeat(3, 1fr);">
+    <a class="metric metric-link" href="{% url 'my_applications' %}">
+      <div>
+        <div class="metric-label">Active applications</div>
+        <div class="metric-value{% if not active_count %} is-zero{% endif %}">{{ active_count }}</div>
+      </div>
+      <svg class="metric-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    </a>
+    <a class="metric metric-link" href="{% url 'saved_jobs' %}">
+      <div>
+        <div class="metric-label">Saved jobs</div>
+        <div class="metric-value{% if not saved_count %} is-zero{% endif %}">{{ saved_count }}</div>
+      </div>
+      <svg class="metric-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    </a>
+    <a class="metric metric-link" href="{% url 'upcoming_interviews' %}">
+      <div>
+        <div class="metric-label">Upcoming interviews</div>
+        <div class="metric-value{% if not interview_count %} is-zero{% endif %}">{{ interview_count }}</div>
+      </div>
+      <svg class="metric-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    </a>
+  </div>
+</section>
+
+<div class="content-grid">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Recent applications</h2>
+      <a href="{% url 'my_applications' %}">Track all &rarr;</a>
+    </div>
+    {% if applications %}
+      {% for application in applications %}
+        <a class="app-item" href="{% url 'my_applications' %}">
+          <div>
+            <div class="app-title">{{ application.job.title }}</div>
+            <div class="app-sub">{{ application.job.company }} &middot; {{ application.applied_at|date:"M d, Y" }}</div>
+          </div>
+          <span class="status status-{{ application.status }}">{{ application.get_status_display }}</span>
+        </a>
+      {% endfor %}
+    {% else %}
+      <div class="empty">Your submitted applications will appear here.</div>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Recommended for you</h2>
+      <a href="{% url 'browse_jobs' %}">See all &rarr;</a>
+    </div>
+    {% if recommendations %}
+      {% for job in recommendations %}
+        <div class="job-card">
+          <h3>{{ job.title }}</h3>
+          <p>{{ job.company }} &middot; {{ job.location|default:"Remote" }}</p>
+          <a class="job-link" href="{% url 'job_detail' job.id %}">View role & apply &rarr;</a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">No recommendations yet. Browse jobs to help us learn your preferences.</div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

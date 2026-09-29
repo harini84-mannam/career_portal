@@ -1,0 +1,183 @@
+{% extends "screening/base.html" %}
+{% block title %}Candidate Profile - {{ candidate_profile.user.get_full_name|default:candidate_profile.user.username }}{% endblock %}
+{% block head %}
+<style>
+  .recruiter-profile { max-width: 1000px; margin: 40px auto 80px; }
+  .top-actions { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:24px; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:11px 16px; border-radius:11px; font-weight:700; font-size:12px; text-decoration:none; border:1px solid transparent; transition:all .2s var(--ease-out); cursor:pointer; }
+  .btn svg { width:15px; height:15px; }
+  .btn-outline { background:#fff; color:var(--ink); border-color:var(--line-strong); }
+  .btn-outline:hover { background:var(--canvas-raised); border-color:var(--ink); transform:translateY(-2px); }
+  .eyebrow { display:inline-block; color:var(--teal-deep); font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+  .profile-header { background:#fff; border:1px solid var(--line); border-radius:24px; padding:38px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:flex-start; gap:28px; box-shadow:0 4px 20px rgba(0,0,0,.03); }
+  .profile-info { flex:1; }
+  .profile-info h1 { font-family:var(--display); font-size:clamp(2rem,4vw,3rem); letter-spacing:-.06em; margin:12px 0 8px; color:var(--ink); }
+  .profile-headline { color:var(--ink-soft); font-size:17px; font-weight:600; line-height:1.45; max-width:700px; }
+  .profile-meta { display:flex; flex-wrap:wrap; gap:18px; color:var(--muted); font-size:13px; margin-top:20px; }
+  .meta-item { display:flex; align-items:center; gap:7px; }
+  .meta-item svg { width:16px; height:16px; opacity:.7; }
+  .profile-side { min-width:185px; padding:16px; border:1px solid var(--line); border-radius:16px; background:var(--canvas-raised); }
+  .profile-side-label { color:var(--muted); font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; margin-bottom:7px; }
+  .profile-side-value { font-family:var(--display); font-size:25px; letter-spacing:-.05em; color:var(--teal-deep); }
+  .profile-side small { display:block; margin-top:4px; color:var(--muted); font-size:11px; }
+  .profile-section { background:#fff; border:1px solid var(--line); border-radius:24px; padding:30px 32px; margin-bottom:24px; box-shadow:0 4px 20px rgba(0,0,0,.03); }
+  .section-title { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:22px; }
+  .section-title h2 { font-family:var(--display); font-size:20px; font-weight:700; letter-spacing:-.04em; margin:0; color:var(--ink); }
+  .section-note { color:var(--muted); font-size:12px; }
+  .summary { color:var(--ink-soft); line-height:1.8; font-size:15px; }
+  .summary p { margin:0 0 12px; }
+  .summary p:last-child { margin-bottom:0; }
+  .skills-tags { display:flex; flex-wrap:wrap; gap:10px; }
+  .skill-tag { padding:8px 15px; background:var(--canvas-raised); border:1px solid var(--line); border-radius:999px; font-size:13px; font-weight:600; color:var(--ink-soft); }
+  .history-item { padding:20px 0; border-bottom:1px solid var(--line); }
+  .history-item:first-child { padding-top:0; }
+  .history-item:last-child { border-bottom:none; padding-bottom:0; }
+  .history-header { display:flex; justify-content:space-between; gap:16px; margin-bottom:8px; }
+  .history-title { font-weight:700; font-size:16px; color:var(--ink); }
+  .history-date { color:var(--muted); font-size:13px; white-space:nowrap; }
+  .history-org { font-weight:600; color:var(--brand-blue); font-size:14px; margin-bottom:10px; }
+  .history-desc { color:var(--ink-soft); font-size:14px; line-height:1.65; }
+  .details-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:24px 30px; }
+  .detail-item label { display:block; color:var(--muted); font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; margin-bottom:8px; }
+  .detail-item span { display:block; color:var(--ink); font-size:14px; font-weight:600; line-height:1.5; word-break:break-word; }
+  .resume-card { display:flex; align-items:center; gap:18px; padding:18px; background:var(--canvas-raised); border-radius:16px; border:1px dashed var(--line-strong); }
+  .resume-icon { width:46px; height:46px; flex:none; background:#fff; border-radius:12px; display:grid; place-items:center; color:var(--brand-red); border:1px solid var(--line); }
+  .resume-icon svg { width:22px; height:22px; }
+  .resume-details { flex:1; min-width:0; }
+  .resume-name { font-weight:700; font-size:14px; margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .resume-meta { color:var(--muted); font-size:12px; }
+  .empty-state { color:var(--muted); text-align:center; padding:12px 0 2px; font-size:13px; }
+  .applications-list { display:flex; flex-direction:column; gap:10px; }
+  .application-row { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; padding:14px 18px; border:1px solid rgba(24,169,153,.22); border-radius:14px; background:rgba(24,169,153,.06); text-decoration:none; color:inherit; }
+  .application-row strong { color:var(--ink); }
+  .application-row span { color:var(--muted); font-size:12px; }
+  .status-pill { display:inline-flex; padding:6px 10px; border-radius:999px; background:rgba(24,169,153,.12); color:var(--teal-deep); font-family:var(--mono); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+  @media(max-width:760px){ .profile-header{flex-direction:column;padding:28px;} .profile-side{width:100%;box-sizing:border-box;} .top-actions{align-items:stretch;} }
+  @media(max-width:520px){ .profile-section{padding:24px 20px;} .history-header{flex-direction:column;gap:5px;} .history-date{white-space:normal;} .resume-card{align-items:flex-start;flex-wrap:wrap;} .resume-details{width:calc(100% - 64px);} .resume-card .btn{width:100%;} }
+</style>
+{% endblock %}
+{% block content %}
+<div class="recruiter-profile">
+  <div class="top-actions">
+    <a href="{% url 'talent_pool' %}" class="btn btn-outline">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      Back to candidate directory
+    </a>
+  </div>
+
+  {% if applications_to_us %}
+    <section class="profile-section">
+      <div class="section-title"><h2>Applications to your roles</h2><span class="section-note">{{ applications_to_us|length }} application{{ applications_to_us|length|pluralize }}</span></div>
+      <div class="applications-list">
+        {% for app in applications_to_us %}
+          <a class="application-row" href="{% url 'application_detail' app.id %}">
+            <div><strong>{{ app.job.title }}</strong><br><span>Applied {{ app.applied_at|date:"M d, Y" }} &middot; {{ app.match_score|floatformat:0 }}% match</span></div>
+            <span class="status-pill">{{ app.get_status_display }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% else %}
+    <section class="profile-section">
+      <div class="section-title"><h2>Applications to your roles</h2></div>
+      <div class="empty-state">This candidate hasn't applied to any of your roles yet &mdash; you're viewing them from the candidate directory.</div>
+    </section>
+  {% endif %}
+
+  <section class="profile-header">
+    <div class="profile-info">
+      <span class="eyebrow">Candidate profile</span>
+      <h1>{{ candidate_profile.user.get_full_name|default:candidate_profile.user.username }}</h1>
+      <div class="profile-headline">{{ candidate_profile.headline|default:"No resume headline has been added yet." }}</div>
+      <div class="profile-meta">
+        <div class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2-2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>{{ candidate_profile.user.email|default:"Email not provided" }}</div>
+        <div class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>{{ candidate_profile.experience_years|floatformat:1 }} years experience</div>
+      </div>
+    </div>
+    <div class="profile-side"><div class="profile-side-label">Profile completion</div><div class="profile-side-value">{{ candidate_profile.get_completion_percentage }}%</div><small>Fields filled in</small></div>
+  </section>
+
+  <section class="profile-section">
+    <div class="section-title"><h2>Profile Summary</h2></div>
+    {% if candidate_profile.bio %}<div class="summary">{{ candidate_profile.bio|linebreaks }}</div>{% else %}<div class="empty-state">No professional summary has been added yet.</div>{% endif %}
+  </section>
+
+  <section class="profile-section">
+    <div class="section-title"><h2>Key Skills</h2><span class="section-note">Candidate-provided skills</span></div>
+    {% if skills_list %}<div class="skills-tags">{% for skill in skills_list %}<span class="skill-tag">{{ skill }}</span>{% endfor %}</div>{% else %}<div class="empty-state">No skills have been added yet.</div>{% endif %}
+  </section>
+
+  <section class="profile-section">
+    <div class="section-title"><h2>Employment History</h2></div>
+    {% for job in employment %}
+      <div class="history-item">
+        <div class="history-header"><div class="history-title">{{ job.job_title }}</div><div class="history-date">{{ job.start_date|date:"M Y" }} – {% if job.is_current %}Present{% elif job.end_date %}{{ job.end_date|date:"M Y" }}{% else %}Not specified{% endif %}</div></div>
+        <div class="history-org">{{ job.company }}{% if job.monthly_salary %} · {{ job.monthly_salary }} per month{% endif %}</div>
+        {% if job.description %}<div class="history-desc">{{ job.description|linebreaks }}</div>{% endif %}
+      </div>
+    {% empty %}<div class="empty-state">No employment history has been added yet.</div>{% endfor %}
+  </section>
+
+  <section class="profile-section">
+    <div class="section-title"><h2>Education Details</h2></div>
+    {% for edu in education %}
+      <div class="history-item">
+        <div class="history-header"><div class="history-title">{{ edu.qualification }}</div><div class="history-date">Passed in {{ edu.passing_year }}</div></div>
+        <div class="history-org">{{ edu.institution }}</div>
+        {% if edu.grading_system or edu.score %}<div class="history-desc">{% if edu.grading_system %}{{ edu.grading_system }}{% endif %}{% if edu.grading_system and edu.score %}: {% endif %}{{ edu.score }}</div>{% endif %}
+      </div>
+    {% empty %}<div class="empty-state">No education details have been added yet.</div>{% endfor %}
+  </section>
+
+  <section class="profile-section">
+    <div class="section-title"><h2>IT Skills &amp; Projects</h2></div>
+    {% for project in projects %}
+      <div class="history-item">
+        <div class="history-header"><div class="history-title">{{ project.title }}</div></div>
+        {% if project.tools_used %}<div class="history-org">Tools: {{ project.tools_used }}</div>{% endif %}
+        {% if project.description %}<div class="history-desc">{{ project.description|linebreaks }}</div>{% endif %}
+      </div>
+    {% empty %}<div class="empty-state">No technical projects have been added yet.</div>{% endfor %}
+  </section>
+
+  <section class="profile-section">
+    <div class="section-title"><h2>Desired Career Profile</h2></div>
+    {% if desired_profile %}
+      <div class="details-grid">
+        <div class="detail-item"><label>Industry</label><span>{{ desired_profile.industry|default:"Not specified" }}</span></div>
+        <div class="detail-item"><label>Functional Role</label><span>{{ desired_profile.functional_role|default:"Not specified" }}</span></div>
+        <div class="detail-item"><label>Job Type</label><span>{{ desired_profile.job_type|default:"Not specified" }}</span></div>
+        <div class="detail-item"><label>Preferred Locations</label><span>{{ desired_profile.preferred_locations|default:"Not specified" }}</span></div>
+        <div class="detail-item"><label>Expected Salary</label><span>{{ desired_profile.expected_salary|default:"Not specified" }}</span></div>
+      </div>
+    {% else %}<div class="empty-state">No desired career preferences have been added yet.</div>{% endif %}
+  </section>
+
+  <section class="profile-section">
+    <div class="section-title"><h2>Personal Details</h2></div>
+    <div class="details-grid">
+      <div class="detail-item"><label>Full Name</label><span>{{ candidate_profile.user.get_full_name|default:candidate_profile.user.username }}</span></div>
+      <div class="detail-item"><label>Email</label><span>{{ candidate_profile.user.email|default:"Not provided" }}</span></div>
+      <div class="detail-item"><label>Experience</label><span>{{ candidate_profile.experience_years|floatformat:1 }} years</span></div>
+      <div class="detail-item"><label>Registered</label><span>{{ candidate_profile.created_at|date:"M d, Y" }}</span></div>
+      <div class="detail-item"><label>Profile views</label><span>{{ candidate_profile.search_appearances }}</span></div>
+      <div class="detail-item"><label>Recruiter actions</label><span>{{ candidate_profile.recruiter_actions }}</span></div>
+    </div>
+  </section>
+
+  <section class="profile-section">
+    <div class="section-title"><h2>Profile Resume</h2><span class="section-note">General resume on file, not tied to a specific application</span></div>
+    {% if candidate_profile.resume %}
+      <div class="resume-card">
+        <div class="resume-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+        <div class="resume-details"><div class="resume-name">{{ candidate_profile.resume.name|cut:"resumes/" }}</div><div class="resume-meta">Opening or downloading the resume counts as a recruiter action.</div></div>
+        <a href="{% url 'download_candidate_resume' candidate_profile.pk %}" class="btn btn-outline" target="_blank">View / download resume</a>
+      </div>
+    {% else %}<div class="empty-state">No resume has been uploaded to this profile yet.</div>{% endif %}
+  </section>
+
+  <div class="top-actions" style="margin-top:28px; margin-bottom:0;">
+    <a href="{% url 'talent_pool' %}" class="btn btn-outline">Back to candidate directory</a>
+  </div>
+</div>
+{% endblock %}

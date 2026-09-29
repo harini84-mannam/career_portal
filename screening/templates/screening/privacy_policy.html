@@ -1,0 +1,61 @@
+{% extends "screening/base.html" %}
+{% block title %}Privacy Policy - Meslova Systems{% endblock %}
+{% block head %}
+<style>
+  .legal-page { max-width: 820px; margin: 0 auto; padding: 58px 0 90px; }
+  .legal-page .eyebrow { display:inline-flex; align-items:center; gap:10px; color:var(--brand-blue); font-family:var(--mono); font-size:11px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+  .legal-page .eyebrow::before { width:28px; height:2px; background:var(--brand-cyan); content:""; }
+  .legal-page h1 { margin:17px 0 6px; color:var(--brand-blue); font-size:clamp(2.2rem,5vw,3.4rem); font-weight:800; letter-spacing:-.05em; }
+  .legal-page .updated { color:var(--muted); font-size:12px; font-family:var(--mono); text-transform:uppercase; letter-spacing:.05em; margin-bottom:36px; }
+  .legal-section { background:var(--canvas-raised); border:1px solid var(--line); border-radius:20px; padding:28px 32px; margin-bottom:18px; }
+  .legal-section h2 { font-family:var(--display); font-size:18px; font-weight:800; letter-spacing:-.03em; margin:0 0 12px; color:var(--ink); }
+  .legal-section p { color:var(--ink-soft); font-size:14px; line-height:1.75; margin:0 0 12px; }
+  .legal-section p:last-child { margin-bottom:0; }
+  .legal-section ul { margin:0 0 12px; padding-left:20px; color:var(--ink-soft); font-size:14px; line-height:1.75; }
+  .legal-section ul:last-child { margin-bottom:0; }
+  .contact-box { margin-top:8px; padding:16px 18px; border-radius:14px; background:rgba(24,169,153,.08); border:1px solid rgba(24,169,153,.22); font-size:13px; color:var(--ink-soft); }
+  .contact-box a { color:var(--teal-deep); font-weight:700; text-decoration:none; }
+  .contact-box a:hover { text-decoration:underline; }
+  @media(max-width:620px){ .legal-page{padding:36px 0 60px;} .legal-section{padding:22px 20px;} }
+</style>
+{% endblock %}
+{% block content %}
+<div class="legal-page">
+  <span class="eyebrow">Meslova / Legal</span>
+  <h1>Privacy Policy.</h1>
+  <p class="updated">Last updated &middot; January 2026</p>
+
+  <div class="legal-section">
+    <h2>What we collect</h2>
+    <p>When you register on Meslova Career Portal, we collect the information you provide directly: your name, email address, and, if you sign up as a candidate, any profile details you choose to add such as your headline, skills, employment history, education, desired role preferences, and resume file. If you sign up as an HR user, we collect your company name and the job postings and hiring decisions you create.</p>
+    <p>We also automatically record basic usage data tied to your account, such as when your candidate profile is viewed by a recruiter and when a recruiter takes an action (like reviewing an application or downloading a resume), so both sides of the platform have visibility into hiring activity.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2>How we use it</h2>
+    <ul>
+      <li>To operate the core matching pipeline &mdash; comparing resume content against a job's requirements to produce a match score.</li>
+      <li>To let HR users at a company review, filter, and act on applications submitted to their own job postings.</li>
+      <li>To let HR users browse the general candidate directory, since a completed registration is itself useful information for hiring &mdash; independent of whether a candidate has applied to a specific role.</li>
+      <li>To maintain accurate application status, interview scheduling, and communication between candidates and recruiters.</li>
+    </ul>
+  </div>
+
+  <div class="legal-section">
+    <h2>Who can see your information</h2>
+    <p>Candidate profile information (name, headline, skills, experience, education, and general resume) is visible to any HR user on the platform, whether or not you've applied to their specific job &mdash; this is what powers the candidate directory. Application-specific details, such as your match score against a particular role and any application-only resume, are visible only to the HR user who posted that job.</p>
+    <p>We do not sell personal information to third parties, and we do not share your data outside this platform except as required by law.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2>Your choices</h2>
+    <p>You can update or remove most of your profile information at any time from your account settings. If you'd like your account and associated data fully deleted, contact us using the details below and we'll process the request.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2>Questions</h2>
+    <p>If you have questions about this policy or how your data is handled, reach out any time.</p>
+    <div class="contact-box">Email <a href="mailto:privacy@meslova.com">privacy@meslova.com</a> or visit our <a href="{% url 'support' %}">Support page</a>.</div>
+  </div>
+</div>
+{% endblock %}

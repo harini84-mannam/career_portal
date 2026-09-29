@@ -1,0 +1,148 @@
+{% extends "screening/base.html" %}
+{% block title %}Profile Settings - meslová Career Portal{% endblock %}
+{% block head %}
+<style>
+  .page-head { padding: 58px 0 28px; }
+  .page-head h1 { font-size: clamp(2.5rem, 5vw, 4rem); margin-top: 14px; letter-spacing: -0.04em; font-weight: 800; }
+  .page-head p { color: var(--muted); font-size: 15px; margin-top: 16px; max-width: 600px; line-height: 1.6; }
+
+  .form-panel { max-width: 860px; padding: 32px; background: var(--canvas-raised); border: 1px solid var(--line); border-radius: 24px; margin-bottom: 40px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .form-group { margin-bottom: 24px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { display: block; margin-bottom: 10px; color: var(--muted); font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+  
+  .form-control { width: 100%; padding: 14px 16px; background: #fff; border: 1px solid var(--line-strong); border-radius: 12px; font-family: var(--sans); font-size: 14px; transition: border-color 0.2s ease; }
+  .form-control:focus { outline: none; border-color: var(--brand-cyan); box-shadow: 0 0 0 4px rgba(0, 174, 239, 0.08); }
+  textarea.form-control { min-height: 140px; resize: vertical; line-height: 1.6; }
+  
+  .form-help { color: var(--subtle); font-size: 12px; margin-top: 8px; line-height: 1.5; }
+  
+  .form-actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; border-top: 1px solid var(--line); padding-top: 24px; margin-top: 8px; }
+  
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 12px; font-weight: 700; font-size: 13px; text-decoration: none; border: 1px solid transparent; transition: all 0.2s var(--ease-out); cursor: pointer; }
+  .btn-primary { background: var(--brand-cyan); color: #fff; border-color: var(--brand-cyan); }
+  .btn-primary:hover { background: var(--brand-blue); border-color: var(--brand-blue); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+  .btn-outline:hover { background: var(--canvas-raised); border-color: var(--ink); }
+
+  .resume-note { padding: 16px; border-radius: 14px; background: rgba(0, 174, 239, 0.08); color: var(--brand-blue); font-size: 13px; line-height: 1.6; margin-bottom: 24px; }
+  .resume-note strong { font-weight: 700; }
+
+  @media (max-width: 650px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: auto; }
+    .form-panel { padding: 24px; }
+    .form-actions { flex-direction: column-reverse; align-items: stretch; }
+    .btn { width: 100%; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'profile_view' %}" class="btn-back">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+  Back to profile
+</a>
+
+<section class="page-head">
+  <span class="eyebrow">{% if profile.role == 'hr' %}Recruiter{% else %}Candidate{% endif %} / Profile</span>
+  <h1>{% if profile.role == 'hr' %}Manage your hiring identity.{% else %}Make your profile work harder.{% endif %}</h1>
+  <p>
+    {% if profile.role == 'hr' %}
+      Update your recruiter details and company information to build trust with potential candidates.
+    {% else %}
+      Keep the details you want recruiters at Meslova Systems to see in one place. Your saved resume can be reused across applications.
+    {% endif %}
+  </p>
+</section>
+
+<form method="post" enctype="multipart/form-data" class="form-panel">
+  {% csrf_token %}
+  
+  {% if profile.role == 'candidate' and profile.resume %}
+    <div class="resume-note">
+      Resume saved: <strong>{{ profile.resume.name|cut:"resumes/" }}</strong>. Upload a new file below to replace it.
+    </div>
+  {% endif %}
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="first_name">First name</label>
+      <input class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}">
+    </div>
+    <div class="form-group">
+      <label for="last_name">Last name</label>
+      <input class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}">
+    </div>
+    <div class="form-group">
+      <label for="email">Email address</label>
+      <input class="form-control" type="email" id="email" name="email" value="{{ user.email }}">
+    </div>
+
+    {% if profile.role == 'hr' %}
+      <div class="form-group">
+        <label for="company_name">Company Name</label>
+        <input class="form-control" id="company_name" name="company_name" value="{{ profile.company_name|default:'' }}">
+      </div>
+      <div class="form-group">
+        <label for="department">Department</label>
+        <input class="form-control" id="department" name="department" value="{{ profile.department|default:'' }}" placeholder="e.g. Engineering, Talent Acquisition">
+      </div>
+    {% else %}
+      <div class="form-group">
+        <label for="experience_years">Years of experience</label>
+        <input class="form-control" type="number" step="0.5" min="0" id="experience_years" name="experience_years" value="{{ profile.experience_years }}">
+      </div>
+      <div class="form-group full">
+        <label for="resume">Default Resume</label>
+        <input class="form-control" type="file" id="resume" name="resume" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png">
+        <div class="form-help">Upload your latest resume here to use it as the default for future applications.</div>
+      </div>
+      <div class="form-group full">
+        <label for="skills">Core skills</label>
+        <input class="form-control" id="skills" name="skills" value="{{ profile.skills|default:'' }}" placeholder="e.g. Python, Django, Product Design, SQL">
+        <div class="form-help">Separate skills with commas so your profile is easier to understand at a glance.</div>
+      </div>
+      <div class="form-group full">
+        <label for="bio">Profile Summary</label>
+        <textarea class="form-control" id="bio" name="bio" placeholder="A 3-4 sentence elevator pitch highlighting your core domain expertise, major achievements, and career goals.">{{ profile.bio|default:'' }}</textarea>
+      </div>
+
+      <div class="form-group full" style="margin-top: 32px; border-top: 1px solid var(--line); padding-top: 32px;">
+        <h3 style="font-family: var(--display); font-size: 18px; font-weight: 700; margin-bottom: 24px;">Desired Career Profile</h3>
+      </div>
+      
+      <div class="form-group">
+        <label for="industry">Preferred Industry</label>
+        <input class="form-control" id="industry" name="industry" value="{{ desired_profile.industry|default:'' }}" placeholder="e.g. IT Services, Finance, Healthcare">
+      </div>
+      <div class="form-group">
+        <label for="functional_role">Functional Role</label>
+        <input class="form-control" id="functional_role" name="functional_role" value="{{ desired_profile.functional_role|default:'' }}" placeholder="e.g. Software Engineer, Data Scientist">
+      </div>
+      <div class="form-group">
+        <label for="job_type">Job Type</label>
+        <select class="form-control" id="job_type" name="job_type">
+          <option value="Permanent" {% if desired_profile.job_type == 'Permanent' %}selected{% endif %}>Permanent</option>
+          <option value="Contract" {% if desired_profile.job_type == 'Contract' %}selected{% endif %}>Contract</option>
+          <option value="Freelance" {% if desired_profile.job_type == 'Freelance' %}selected{% endif %}>Freelance</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="preferred_locations">Preferred Locations</label>
+        <input class="form-control" id="preferred_locations" name="preferred_locations" value="{{ desired_profile.preferred_locations|default:'' }}" placeholder="e.g. Remote, Bangalore, New York">
+      </div>
+      <div class="form-group">
+        <label for="expected_salary">Expected Salary</label>
+        <input class="form-control" id="expected_salary" name="expected_salary" value="{{ desired_profile.expected_salary|default:'' }}" placeholder="e.g. $100,000 / year">
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="form-actions">
+    <a class="btn btn-outline" href="{% url 'profile_view' %}">Cancel</a>
+    <button class="btn btn-primary" type="submit">Save profile &rarr;</button>
+  </div>
+</form>
+{% endblock %}

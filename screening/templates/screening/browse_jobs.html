@@ -1,0 +1,95 @@
+{% extends "screening/base.html" %}
+{% block title %}Browse Jobs - meslová Career Portal{% endblock %}
+{% block head %}
+<style>
+  .page-head { padding: 58px 0 28px; }
+  .page-head h1 { font-size: clamp(2.5rem, 5vw, 4rem); margin-top: 14px; letter-spacing: -0.04em; font-weight: 800; }
+  .page-head p { color: var(--muted); font-size: 15px; margin-top: 16px; max-width: 600px; line-height: 1.6; }
+
+  .search { display: flex; gap: 12px; margin: 20px 0 32px; background: #fff; padding: 8px; border-radius: 16px; border: 1px solid var(--line); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+  .search input { flex: 1; padding: 12px 16px; border: none; background: transparent; font-size: 15px; color: var(--ink); }
+  .search input:focus { outline: none; }
+
+  .pagination { display:flex; align-items:center; justify-content:center; gap:14px; padding:32px 0 8px; }
+  .pagination a, .pagination span.current { font-family:var(--mono); font-size:12px; font-weight:800; color:var(--ink); text-decoration:none; padding:8px 14px; border-radius:9px; border:1px solid var(--line-strong); }
+  .pagination a:hover { background:#fffefa; }
+  .pagination span.current { background:var(--teal); color:#fff; border-color:var(--teal); }
+  .pagination span.disabled { color:var(--muted); padding:8px 14px; font-family:var(--mono); font-size:12px; }
+  
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 13px; text-decoration: none; border: 1px solid transparent; transition: all 0.2s var(--ease-out); cursor: pointer; }
+  .btn-primary { background: var(--brand-cyan); color: #fff; border-color: var(--brand-cyan); }
+  .btn-primary:hover { background: var(--brand-blue); border-color: var(--brand-blue); }
+
+  .job-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .job-card { display: flex; flex-direction: column; justify-content: space-between; min-height: 240px; padding: 28px; background: var(--canvas-raised); border: 1px solid var(--line); border-radius: 24px; transition: all 0.2s ease; text-decoration: none; color: inherit; }
+  .job-card:hover { transform: translateY(-4px); border-color: var(--brand-cyan); box-shadow: 0 20px 40px rgba(18, 32, 45, 0.08); }
+  
+  .job-meta { display: flex; justify-content: space-between; gap: 12px; align-items: center; color: var(--muted); font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  .status-open { color: var(--brand-cyan); }
+  
+  .job-card h2 { font-family: var(--display); font-size: 24px; letter-spacing: -0.04em; margin: 20px 0 8px; font-weight: 800; }
+  .company { color: var(--muted); font-size: 14px; font-weight: 500; }
+  .job-summary { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 20px 0; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  
+  .job-bottom { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 20px; border-top: 1px solid var(--line); margin-top: auto; }
+  .job-bottom span { color: var(--ink); font-weight: 600; font-size: 13px; }
+  .job-link { color: var(--brand-blue); font-size: 13px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 4px; }
+
+  .empty { padding: 80px 40px; background: var(--canvas-raised); border: 1px solid var(--line); border-radius: 24px; text-align: center; color: var(--muted); }
+  .empty h3 { color: var(--ink); font-family: var(--display); font-size: 24px; margin: 0 0 12px; font-weight: 700; }
+
+  @media (max-width: 800px) { .job-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { .search { flex-direction: column; padding: 12px; } .search .btn { width: 100%; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'candidate_dashboard' %}" class="btn-back">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+  Back to dashboard
+</a>
+<section class="page-head">
+  <span class="eyebrow">Candidate / Opportunities</span>
+  <h1>Find work that fits.</h1>
+  <p>Search the live role board at Meslova Systems. Every job is paired with a clear brief and a transparent application status.</p>
+</section>
+
+<form class="search" method="get">
+  <input name="q" value="{{ query }}" placeholder="Search by title, location, or skill...">
+  <button class="btn btn-primary" type="submit">Search roles</button>
+</form>
+
+{% if jobs %}
+  <div class="job-grid">
+    {% for job in jobs %}
+      <a class="job-card" href="{% url 'job_detail' job.id %}">
+        <div>
+          <div class="job-meta">
+            <span>{{ job.created_at|date:"M d, Y" }}</span>
+            <span class="status-open">Open now</span>
+          </div>
+          <h2>{{ job.title }}</h2>
+          <div class="company">Meslova Systems &middot; {{ job.location|default:"Remote / flexible" }}</div>
+          <p class="job-summary">{{ job.description|truncatechars:180 }}</p>
+        </div>
+        <div class="job-bottom">
+          <span>{{ job.salary_range|default:"Competitive salary" }}</span>
+          <div class="job-link">View details &rarr;</div>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav class="pagination" aria-label="Job list pages">
+    {% if page_obj.has_previous %}<a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}">&larr; Prev</a>{% else %}<span class="disabled">&larr; Prev</span>{% endif %}
+    <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.next_page_number }}">Next &rarr;</a>{% else %}<span class="disabled">Next &rarr;</span>{% endif %}
+  </nav>
+  {% endif %}
+{% else %}
+  <div class="empty">
+    <h3>No matching roles yet.</h3>
+    <p>Try a broader search or check back soon for new opportunities.</p>
+  </div>
+{% endif %}
+{% endblock %}

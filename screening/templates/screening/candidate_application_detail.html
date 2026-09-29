@@ -1,0 +1,126 @@
+{% extends "screening/base.html" %}
+{% block title %}{{ application.job.title }} - meslová Career Portal{% endblock %}
+{% block head %}
+<style>
+  .page-head { padding: 58px 0 24px; }
+  .page-head h1 { font-size: clamp(2.2rem, 4vw, 3.6rem); margin-top: 14px; letter-spacing: -0.04em; font-weight: 800; }
+  .page-head p { color: var(--muted); font-size: 14px; margin-top: 12px; }
+
+  .status { display: inline-flex; padding: 6px 12px; border-radius: 999px; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; white-space: nowrap; }
+  .status-applied { background: rgba(0, 174, 239, 0.1); color: var(--brand-cyan); }
+  .status-processing { background: rgba(0, 74, 153, 0.1); color: var(--brand-blue); }
+  .status-hired { background: rgba(24, 169, 153, 0.1); color: #18a999; }
+  .status-rejected { background: rgba(237, 28, 36, 0.1); color: var(--brand-red); }
+
+  .timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin: 32px 0 12px; }
+  .step { position: relative; text-align: center; padding-top: 28px; color: var(--subtle); font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  .step:before { content: ""; position: absolute; top: 4px; left: 50%; width: 12px; height: 12px; transform: translateX(-50%); border: 2.5px solid var(--line-strong); border-radius: 50%; background: var(--canvas-raised); z-index: 1; }
+  .step:not(:last-child):after { content: ""; position: absolute; top: 9px; left: 50%; width: 100%; height: 2px; background: var(--line); }
+  .step.done { color: var(--brand-blue); }
+  .step.done:before { background: var(--brand-cyan); border-color: var(--brand-cyan); }
+  .step.done:not(:last-child):after { background: var(--brand-cyan); }
+  .step.current { color: var(--ink); font-weight: 800; }
+  .step.current:before { box-shadow: 0 0 0 6px rgba(0, 174, 239, 0.15); border-color: var(--brand-cyan); }
+
+  .panel { background: var(--canvas-raised); border: 1px solid var(--line); border-radius: 24px; padding: 28px; margin-bottom: 20px; }
+
+  .interview-card { padding: 18px; border-radius: 16px; border: 1px solid rgba(24, 169, 153, .28); background: rgba(24, 169, 153, .06); margin-bottom: 20px; }
+  .interview-card p { margin: 6px 0; color: var(--ink-soft); font-size: 13px; line-height: 1.5; }
+
+  .offer-card { padding: 24px; border-radius: 16px; border: 1px solid rgba(0, 174, 239, .3); background: rgba(0, 174, 239, .05); }
+  .offer-card h3 { margin: 0 0 14px; font-family: var(--display); font-size: 20px; }
+  .offer-row { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 13px; }
+  .offer-row:last-of-type { border-bottom: none; }
+  .offer-row .label { color: var(--muted); }
+  .offer-row .value { font-weight: 700; text-align: right; }
+  .offer-message { margin-top: 16px; padding: 14px 16px; background: #fff; border-radius: 12px; font-size: 13px; line-height: 1.6; color: var(--ink-soft); white-space: pre-line; }
+  .onboarding-panel { overflow: visible; }
+  .required-documents { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--line); }
+
+  .doc-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .doc-row:last-child { border-bottom: none; }
+  .doc-label { font-size: 13px; font-weight: 600; }
+  .doc-status { font-size: 11px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.05em; }
+  .doc-status.uploaded { color: #18a999; }
+  .doc-status.missing { color: var(--subtle); }
+  .doc-input { font-size: 12px; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-weight: 700; font-size: 12px; text-decoration: none; border: 1px solid transparent; cursor: pointer; }
+  .btn-primary { background: var(--brand-cyan); color: #fff; border-color: var(--brand-cyan); margin-top: 20px; }
+
+  @media (max-width: 650px) {
+    .timeline { grid-template-columns: 1fr; gap: 16px; margin-left: 12px; }
+    .step { text-align: left; padding: 0 0 0 28px; }
+    .step:before { top: 0; left: 0; transform: none; }
+    .step:not(:last-child):after { top: 12px; left: 6px; width: 2px; height: calc(100% + 16px); }
+    .doc-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'my_applications' %}" class="btn-back">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+  Back to my applications
+</a>
+
+<section class="page-head">
+  <span class="eyebrow">Candidate / Application</span>
+  <h1>{{ application.job.title }}</h1>
+  <p>{{ application.job.company }} &middot; Applied {{ application.applied_at|date:"M d, Y" }} &middot; <span class="status status-{{ application.status }}">{{ application.get_status_display }}</span></p>
+</section>
+
+{% with current=application.status %}
+  <div class="timeline">
+    <div class="step done {% if current == 'applied' %}current{% endif %}">Applied</div>
+    <div class="step {% if current == 'processing' or current == 'hired' or current == 'rejected' %}done{% endif %} {% if current == 'processing' %}current{% endif %}">Processing</div>
+    <div class="step {% if current == 'hired' or current == 'rejected' %}done current{% endif %}">
+      {% if current == 'rejected' %}Rejected{% elif current == 'hired' %}Hired{% else %}Decision{% endif %}
+    </div>
+  </div>
+{% endwith %}
+
+{% for interview in application.interviews.all %}
+  <div class="interview-card">
+    <h3 style="margin:0 0 8px; font-family:var(--display); font-size:18px;">Interview {{ interview.get_status_display|lower }}</h3>
+    <p><strong>When:</strong> {{ interview.scheduled_at|date:"M d, Y · g:i A" }}</p>
+    <p><strong>Where:</strong> {{ interview.location }}</p>
+    {% if interview.notes %}<p><strong>Message:</strong> {{ interview.notes }}</p>{% endif %}
+  </div>
+{% endfor %}
+
+{% if offer and offer.letter_file %}
+  <div class="panel onboarding-panel">
+    <div class="offer-card">
+      <h3>🎉 Your offer</h3>
+      {% if offer.letter_file %}
+        <a href="{% url 'download_candidate_offer' application.id %}" style="display:flex; align-items:center; gap:10px; padding:14px 16px; margin-bottom:16px; background:#fff; border:1px solid rgba(0,174,239,.25); border-radius:12px; color:var(--brand-blue); font-weight:700; text-decoration:none; font-size:13px;">
+          📄 Download your offer letter
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="required-documents">
+      <h2 style="font-family:var(--display); font-size:20px; margin:0 0 6px;">Required documents</h2>
+      <p style="color:var(--muted); font-size:13px; margin:0 0 20px;">Upload the documents required for onboarding. You can add multiple education certificates; other document types use the latest uploaded file.</p>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for item in document_status %}
+          <div class="doc-row">
+            <div>
+              <div class="doc-label">{{ item.label }}{% if item.multiple %} <span style="color:var(--muted); font-weight:400;">(multiple allowed)</span>{% endif %}</div>
+              {% if item.documents %}
+                {% for document in item.documents %}
+                  <span class="doc-status uploaded">Uploaded {{ document.uploaded_at|date:"M d, Y" }} &middot; <a href="{{ document.file.url }}" target="_blank" style="color:#18a999;">View</a></span>{% if not forloop.last %}<br>{% endif %}
+                {% endfor %}
+              {% endif %}
+            </div>
+            <input class="doc-input" type="file" name="doc_{{ item.type }}"{% if item.multiple %} multiple{% endif %}>
+          </div>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Upload documents &rarr;</button>
+      </form>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

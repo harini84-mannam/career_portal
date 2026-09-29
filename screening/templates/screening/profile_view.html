@@ -1,0 +1,298 @@
+{% extends "screening/base.html" %}
+{% block title %}My Profile - meslová Career Portal{% endblock %}
+{% block head %}
+<style>
+  .profile-container { max-width: 1000px; margin: 40px auto; }
+  
+  .profile-header { background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 40px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+  .profile-info { flex: 1; }
+  .profile-info h1 { font-size: 32px; margin: 0 0 8px; color: var(--ink); }
+  .profile-headline { font-size: 18px; color: var(--ink-soft); font-weight: 600; margin-bottom: 16px; line-height: 1.4; }
+  .profile-meta { display: flex; flex-wrap: wrap; gap: 20px; color: var(--muted); font-size: 14px; margin-top: 20px; }
+  .meta-item { display: flex; align-items: center; gap: 8px; }
+  .meta-item svg { width: 16px; height: 16px; opacity: 0.7; }
+
+  .profile-actions { display: flex; flex-direction: column; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 13px; text-decoration: none; border: 1px solid transparent; transition: all 0.2s var(--ease-out); cursor: pointer; }
+  .btn-primary { background: var(--brand-cyan); color: #fff; border-color: var(--brand-cyan); }
+  .btn-primary:hover { background: var(--brand-blue); border-color: var(--brand-blue); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+  .btn-outline:hover { background: var(--canvas-raised); border-color: var(--ink); }
+  .btn-sm { padding: 8px 16px; font-size: 12px; border-radius: 8px; }
+
+  .profile-section { background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 32px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+  .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .section-title h2 { font-family: var(--display); font-size: 20px; font-weight: 700; margin: 0; color: var(--ink); }
+  
+  .resume-card { display: flex; align-items: center; gap: 20px; padding: 20px; background: var(--canvas-raised); border-radius: 16px; border: 1px dashed var(--line-strong); }
+  .resume-icon { width: 48px; height: 48px; background: #fff; border-radius: 12px; display: grid; place-items: center; color: var(--brand-red); border: 1px solid var(--line); }
+  .resume-details { flex: 1; }
+  .resume-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .resume-meta { font-size: 12px; color: var(--muted); }
+
+  .skills-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+  .skill-tag { padding: 8px 16px; background: var(--canvas-raised); border: 1px solid var(--line); border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+
+  .details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; }
+  .detail-item label { display: block; color: var(--muted); font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .detail-item span { display: block; font-size: 15px; font-weight: 600; color: var(--ink); }
+
+  .history-item { padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .history-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .history-item:first-child { padding-top: 0; }
+  .history-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .history-title { font-weight: 700; font-size: 16px; color: var(--ink); }
+  .history-date { font-size: 13px; color: var(--muted); }
+  .history-org { font-weight: 600; color: var(--brand-blue); font-size: 14px; margin-bottom: 12px; }
+  .history-desc { color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+
+  @media (max-width: 768px) {
+    .profile-header { flex-direction: column; padding: 30px; }
+    .profile-actions { width: 100%; flex-direction: row; }
+    .profile-actions .btn { flex: 1; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+  <a href="{% if profile.role == 'hr' %}{% url 'hr_dashboard' %}{% else %}{% url 'candidate_dashboard' %}{% endif %}" class="btn-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    Back to dashboard
+  </a>
+
+  <!-- Header Section -->
+  <div class="profile-header">
+    <div class="profile-info">
+      <span class="eyebrow" style="margin-bottom: 16px;">{% if profile.role == 'hr' %}Recruiter Profile{% else %}Candidate Profile{% endif %}</span>
+      <h1>{{ user.get_full_name|default:user.username }}</h1>
+      <div class="profile-headline">
+        {% if profile.role == 'candidate' %}
+          {{ profile.headline|default:"Add a resume headline to stand out." }}
+        {% else %}
+          {{ profile.department|default:"Talent Acquisition" }} at {{ profile.company_name|default:"Meslova Systems" }}
+        {% endif %}
+      </div>
+      
+      <div class="profile-meta">
+        <div class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          {{ user.email }}
+        </div>
+        {% if profile.role == 'candidate' %}
+          <div class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            {{ profile.experience_years }} Years Experience
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="profile-actions">
+      <a href="{% url 'profile_settings' %}" class="btn btn-primary">Edit Profile</a>
+    </div>
+  </div>
+
+  {% if profile.role == 'candidate' %}
+    <!-- Profile Summary -->
+    <div class="profile-section">
+      <div class="section-title">
+        <h2>Profile Summary</h2>
+      </div>
+      <div style="color: var(--ink-soft); line-height: 1.8; font-size: 15px;">
+        {{ profile.bio|default:"Add a professional summary to highlight your achievements."|linebreaks }}
+      </div>
+    </div>
+
+    <!-- Profile Activity -->
+    <div class="profile-section">
+      <div class="section-title">
+        <h2>Profile Activity</h2>
+      </div>
+      <p style="color: var(--muted); font-size: 13px; margin: -12px 0 20px; line-height: 1.6;">
+        A record of how recruiters have interacted with your profile since you joined.
+      </p>
+      <div class="details-grid">
+        <div class="detail-item">
+          <label>Search Appearances</label>
+          <span style="font-size: 24px;">{{ profile.search_appearances }}</span>
+          <p style="color: var(--muted); font-size: 12px; margin: 6px 0 0; font-weight: 400;">Times your profile showed up in a recruiter's candidate search.</p>
+        </div>
+        <div class="detail-item">
+          <label>Recruiter Actions</label>
+          <span style="font-size: 24px;">{{ profile.recruiter_actions }}</span>
+          <p style="color: var(--muted); font-size: 12px; margin: 6px 0 0; font-weight: 400;">Times a recruiter opened your profile, screened your resume, or moved one of your applications forward.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Skills -->
+    <div class="profile-section">
+      <div class="section-title">
+        <h2>Key Skills</h2>
+      </div>
+      <div class="skills-tags">
+        {% if skills_list %}
+          {% for skill in skills_list %}
+            <span class="skill-tag">{{ skill }}</span>
+          {% endfor %}
+        {% else %}
+          <span style="color: var(--muted);">No skills added yet.</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Employment History -->
+    <div class="profile-section">
+      <div class="section-title">
+        <h2>Employment History</h2>
+        <a href="{% url 'add_employment' %}" class="btn btn-outline btn-sm">+ Add Employment</a>
+      </div>
+      {% if profile.employment.exists %}
+        {% for job in profile.employment.all|dictsortreversed:"start_date" %}
+          <div class="history-item">
+            <div class="history-header">
+              <div class="history-title">{{ job.job_title }}</div>
+              <div class="history-date">{{ job.start_date|date:"M Y" }} - {% if job.is_current %}Present{% else %}{{ job.end_date|date:"M Y" }}{% endif %}</div>
+            </div>
+            <div class="history-org">{{ job.company }} {% if job.monthly_salary %}| {{ job.monthly_salary }}{% endif %}</div>
+            <div class="history-desc">{{ job.description|linebreaks }}</div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align: center; padding: 20px; color: var(--muted);">Add your past work experience to build a complete profile.</div>
+      {% endif %}
+    </div>
+
+    <!-- Education Details -->
+    <div class="profile-section">
+      <div class="section-title">
+        <h2>Education Details</h2>
+        <a href="{% url 'add_education' %}" class="btn btn-outline btn-sm">+ Add Education</a>
+      </div>
+      {% if profile.education.exists %}
+        {% for edu in profile.education.all|dictsortreversed:"passing_year" %}
+          <div class="history-item">
+            <div class="history-header">
+              <div class="history-title">{{ edu.qualification }}</div>
+              <div class="history-date">Passed in {{ edu.passing_year }}</div>
+            </div>
+            <div class="history-org">{{ edu.institution }}</div>
+            <div class="history-desc">
+              {% if edu.grading_system %}{{ edu.grading_system }}: {{ edu.score }}{% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align: center; padding: 20px; color: var(--muted);">Add your educational background.</div>
+      {% endif %}
+    </div>
+
+    <!-- IT Skills / Projects -->
+    <div class="profile-section">
+      <div class="section-title">
+        <h2>IT Skills & Projects</h2>
+        <a href="{% url 'add_project' %}" class="btn btn-outline btn-sm">+ Add Project</a>
+      </div>
+      {% if profile.projects.exists %}
+        {% for project in profile.projects.all %}
+          <div class="history-item">
+            <div class="history-header">
+              <div class="history-title">{{ project.title }}</div>
+            </div>
+            <div class="history-org">Tools: {{ project.tools_used }}</div>
+            <div class="history-desc">{{ project.description|linebreaks }}</div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align: center; padding: 20px; color: var(--muted);">Highlight your technical projects and tools.</div>
+      {% endif %}
+    </div>
+
+    <!-- Desired Career Profile -->
+    <div class="profile-section">
+      <div class="section-title">
+        <h2>Desired Career Profile</h2>
+      </div>
+      <div class="details-grid">
+        <div class="detail-item">
+          <label>Industry</label>
+          <span>{{ desired_profile.industry|default:"Not specified" }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Functional Role</label>
+          <span>{{ desired_profile.functional_role|default:"Not specified" }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Job Type</label>
+          <span>{{ desired_profile.job_type|default:"Not specified" }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Preferred Locations</label>
+          <span>{{ desired_profile.preferred_locations|default:"Not specified" }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Expected Salary</label>
+          <span>{{ desired_profile.expected_salary|default:"Not specified" }}</span>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Personal Details (for all roles) -->
+  <div class="profile-section">
+    <div class="section-title">
+      <h2>Personal Details</h2>
+    </div>
+    <div class="details-grid">
+      <div class="detail-item">
+        <label>Full Name</label>
+        <span>{{ user.get_full_name|default:user.username }}</span>
+      </div>
+      <div class="detail-item">
+        <label>Email</label>
+        <span>{{ user.email }}</span>
+      </div>
+      {% if profile.role == 'hr' %}
+        <div class="detail-item">
+          <label>Company</label>
+          <span>{{ profile.company_name|default:"Meslova Systems" }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Department</label>
+          <span>{{ profile.department|default:"Talent Acquisition" }}</span>
+        </div>
+      {% else %}
+        <div class="detail-item">
+          <label>Experience</label>
+          <span>{{ profile.experience_years }} Years</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if profile.role == 'candidate' %}
+    <!-- Resume Section -->
+    <div class="profile-section">
+      <div class="section-title">
+        <h2>Resume</h2>
+      </div>
+      {% if profile.resume %}
+        <div class="resume-card">
+          <div class="resume-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          </div>
+          <div class="resume-details">
+            <div class="resume-name">{{ profile.resume.name|cut:"resumes/" }}</div>
+            <div class="resume-meta">Uploaded for Meslova Career Portal</div>
+          </div>
+          <a href="{{ profile.resume.url }}" class="btn btn-outline" target="_blank">View Resume</a>
+        </div>
+      {% else %}
+        <div style="text-align: center; padding: 20px; color: var(--muted);">
+          No resume uploaded yet. <a href="{% url 'profile_settings' %}" style="color: var(--brand-cyan);">Upload now</a>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

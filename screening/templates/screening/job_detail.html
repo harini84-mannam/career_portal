@@ -1,0 +1,102 @@
+{% extends "screening/base.html" %}
+{% block title %}{{ job.title }} - meslová Career Portal{% endblock %}
+{% block head %}
+<style>
+  .job-hero { padding: 58px 0 32px; }
+  .job-hero h1 { font-size: clamp(2.5rem, 5vw, 4.6rem); margin: 16px 0 10px; letter-spacing: -0.05em; font-weight: 800; }
+  .job-meta { color: var(--muted); font-size: 15px; font-weight: 500; }
+  
+  .job-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; }
+  .panel { background: var(--canvas-raised); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; }
+  .panel-head { padding: 24px 28px; border-bottom: 1px solid var(--line); }
+  .panel-head h2 { margin: 0; font-family: var(--display); font-size: 22px; letter-spacing: -0.04em; font-weight: 700; }
+  .panel-body { padding: 28px; }
+  
+  .prose { color: var(--ink); font-size: 15px; line-height: 1.8; white-space: pre-line; }
+  .prose b, .prose strong { font-weight: 700; }
+  
+  .side { position: sticky; top: 24px; height: max-content; }
+  
+  .form-group { margin-bottom: 24px; }
+  .form-group label { display: block; margin-bottom: 10px; color: var(--muted); font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+  .form-control { width: 100%; padding: 14px 16px; border: 1px solid var(--line-strong); border-radius: 12px; background: #fff; font-family: var(--sans); font-size: 14px; transition: border-color 0.2s ease; }
+  .form-control:focus { outline: none; border-color: var(--brand-cyan); box-shadow: 0 0 0 4px rgba(0, 174, 239, 0.08); }
+  textarea.form-control { min-height: 160px; resize: vertical; line-height: 1.6; }
+  
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 12px; font-weight: 700; font-size: 13px; text-decoration: none; border: 1px solid transparent; transition: all 0.2s var(--ease-out); cursor: pointer; }
+  .btn-primary { background: var(--brand-cyan); color: #fff; border-color: var(--brand-cyan); width: 100%; }
+  .btn-primary:hover { background: var(--brand-blue); border-color: var(--brand-blue); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--ink); border-color: var(--line-strong); width: 100%; margin-top: 12px; }
+  .btn-outline:hover { background: var(--canvas-raised); border-color: var(--ink); }
+
+  .note { padding: 16px; border-radius: 14px; background: rgba(0, 174, 239, 0.08); color: var(--brand-blue); font-size: 13px; line-height: 1.6; margin-bottom: 24px; }
+  .closed { padding: 18px; border-radius: 14px; background: rgba(237, 28, 36, 0.08); color: var(--brand-red); font-size: 14px; font-weight: 600; text-align: center; }
+  .apply-title { font-family: var(--display); font-size: 24px; letter-spacing: -0.04em; margin: 0 0 16px; font-weight: 800; }
+
+  @media (max-width: 900px) { .job-layout { grid-template-columns: 1fr; } .side { position: static; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'browse_jobs' %}" class="btn-back">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+  Back to job board
+</a>
+<section class="job-hero">
+  <span class="eyebrow">Candidate / Role detail</span>
+  <h1>{{ job.title }}</h1>
+  <div class="job-meta">Meslova Systems &middot; {{ job.location|default:"Remote / flexible" }}{% if job.salary_range %} &middot; {{ job.salary_range }}{% endif %}</div>
+</section>
+
+<div class="job-layout">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>About the role</h2>
+    </div>
+    <div class="panel-body">
+      <div class="prose">{{ job.description }}</div>
+      <h2 style="font-family: var(--display); font-size: 22px; letter-spacing: -0.04em; margin: 40px 0 16px; font-weight: 700;">Skills & requirements</h2>
+      <div class="prose">{{ job.requirements }}</div>
+    </div>
+  </section>
+
+  <aside class="panel side">
+    <div class="panel-head">
+      <h2>Apply to this role</h2>
+    </div>
+    <div class="panel-body">
+      {% if already_applied %}
+        <div class="note" style="background: rgba(39, 174, 96, 0.08); color: #27ae60; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Applied ✓
+        </div>
+        <div style="font-size: 13px; color: var(--muted); margin-top: -12px; margin-bottom: 24px;">
+          Track your progress in <a href="{% url 'my_applications' %}" style="color: var(--brand-blue); font-weight: 600;">My applications</a>.
+        </div>
+      {% elif job.status != 'open' %}
+        <div class="closed">This role is closed and no longer accepting applications.</div>
+      {% else %}
+        {% if not user.profile.resume %}
+          <div class="note" style="background: rgba(237, 28, 36, 0.08); color: var(--brand-red);">
+            <p style="margin-bottom: 12px;"><strong>Resume required</strong></p>
+            Please add a resume to your profile before applying to this role.
+          </div>
+          <a href="{% url 'profile_settings' %}" class="btn btn-primary">Update Profile</a>
+        {% else %}
+          <h3 class="apply-title">Ready to apply?</h3>
+          
+          <form method="post" action="{% url 'apply_job' job.id %}">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit" style="margin-bottom: 0;">Apply Now &rarr;</button>
+          </form>
+        {% endif %}
+      {% endif %}
+      <form method="post" action="{% url 'toggle_saved_job' job.id %}" style="margin-top:12px;">
+        {% csrf_token %}
+        <button class="btn btn-outline" type="submit">{% if is_saved %}Remove from saved jobs{% else %}Save this job{% endif %}</button>
+      </form>
+      <a class="btn btn-outline" href="{% url 'browse_jobs' %}">&larr; Back to job board</a>
+    </div>
+  </aside>
+</div>
+{% endblock %}

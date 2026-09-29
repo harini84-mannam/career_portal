@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#F5F3ED">
+<title>{% block title %}Resume Screening{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --canvas: #f5f3ed;
+    --canvas-raised: #fbfaf7;
+    --ink: #12202d;
+    --ink-soft: #263745;
+    --muted: #77818a;
+    --subtle: #9aa09f;
+    --line: #dadbd4;
+    --line-strong: #c7cbc6;
+    --brand-blue: #004A99;
+    --brand-cyan: #00AEEF;
+    --brand-yellow: #FFD200;
+    --brand-orange: #F7941E;
+    --brand-red: #ED1C24;
+    --brand-gray: #4A4A4A;
+    --teal: var(--brand-cyan);
+    --teal-deep: var(--brand-blue);
+    --amber: var(--brand-orange);
+    --panel: #13242e;
+    --amber-soft: rgba(247, 148, 30, 0.12);
+    --panel-raised: #1b323d;
+    --red-flag: #bd614c;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --display: "DM Sans", var(--sans);
+    --ease-out: cubic-bezier(.23,1,.32,1);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--canvas); color: var(--ink); font-family: var(--sans); line-height: 1.5; }
+  a { color: inherit; }
+  button, input { font: inherit; }
+  button, a, input { -webkit-tap-highlight-color: transparent; }
+  .site-shell { min-height: 100vh; overflow: hidden; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 32px 56px; }
+
+  header.top { display:flex; align-items:center; justify-content:space-between; min-height:74px; border-bottom:1px solid rgba(218,219,212,.9); }
+  .brand-lockup { display:inline-flex; align-items:center; gap:12px; text-decoration:none; }
+  .brand-mark { width:30px; height:30px; flex:none; }
+  .brand-copy { display:flex; flex-direction:column; gap:1px; }
+  .brand { color:var(--ink); font-family:var(--display); font-size:14px; font-weight:800; letter-spacing:-.035em; }
+  .brand-sub { color:var(--muted); font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; }
+  .top-status { display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; }
+  .top-status .help { width:18px; height:18px; display:grid; place-items:center; margin-left:5px; border:1px solid var(--line-strong); border-radius:50%; font-family:var(--sans); font-size:11px; color:inherit; text-decoration:none; cursor:pointer; transition: all 0.15s ease; }
+  .top-status .help:hover { border-color:var(--brand-cyan); color:var(--brand-cyan); background:rgba(0,174,239,0.06); }
+
+  .eyebrow { display:flex; align-items:center; gap:9px; color:var(--teal-deep); font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.14em; line-height:1.3; text-transform:uppercase; }
+  .eyebrow::before { content:""; width:22px; height:1px; background:var(--teal); }
+  h1 { margin: 0; font-family:var(--display); font-size:clamp(1.6rem, 3vw, 2.2rem); font-weight:800; letter-spacing:-.065em; line-height:1.02; }
+  h2, h3, p { margin-top:0; }
+  .hero { display:grid; grid-template-columns:minmax(0, .95fr) minmax(0, 1.05fr); align-items:center; gap:clamp(38px, 7vw, 88px); padding:clamp(70px, 10vw, 132px) 0 78px; }
+  .hero-copy { max-width:590px; }
+  .hero-copy h1 { margin-top:20px; font-size:clamp(3.2rem, 7vw, 6.25rem); line-height:.92; }
+  .hero-copy h1 em { color:var(--teal); font-style:normal; }
+  .hero-copy > p { max-width:520px; margin:30px 0 0; color:var(--muted); font-size:clamp(1rem, 1.4vw, 1.15rem); line-height:1.8; }
+  .hero-note { display:flex; align-items:flex-start; gap:10px; max-width:470px; margin-top:26px; color:var(--muted); font-family:var(--mono); font-size:10px; line-height:1.65; }
+  .hero-note::before { content:"✦"; color:var(--amber); font-family:var(--sans); font-size:15px; line-height:1; }
+  .signal-visual { position:relative; min-height:350px; overflow:hidden; border-radius:26px; background:linear-gradient(135deg,#0c1a25,#152c38); box-shadow:0 24px 50px rgba(15,29,38,.18); }
+  .signal-visual::before { content:""; position:absolute; inset:0; background:radial-gradient(circle at 67% 45%,rgba(24,169,153,.22),transparent 18%), radial-gradient(circle at 85% 20%,rgba(215,154,66,.15),transparent 25%); }
+  .signal-visual::after { content:""; position:absolute; inset:22px; border:1px solid rgba(166,218,209,.12); border-radius:20px; }
+  .signal-visual svg { position:absolute; inset:12% 10% 14% 9%; width:81%; height:74%; }
+  .signal-label { position:absolute; right:28px; bottom:26px; z-index:1; width:200px; padding:17px 18px; border:1px solid rgba(166,218,209,.2); border-radius:16px; background:rgba(21,40,50,.8); color:#f5f3ed; backdrop-filter:blur(12px); }
+  .signal-label b { display:block; color:#edb969; font-family:var(--mono); font-size:10px; letter-spacing:.12em; line-height:1.45; text-transform:uppercase; }
+  .signal-label span { display:block; margin-top:8px; color:rgba(245,243,237,.68); font-size:12px; line-height:1.55; }
+
+  .section-intro { display:flex; align-items:flex-end; justify-content:space-between; gap:30px; padding-bottom:18px; }
+  .section-intro h2 { margin:9px 0 0; font-family:var(--display); font-size:clamp(1.7rem, 3.2vw, 2.8rem); letter-spacing:-.06em; line-height:1.02; }
+  .section-intro p { max-width:360px; margin:0; color:var(--muted); font-size:13px; line-height:1.65; text-align:right; }
+  .panel { background:var(--canvas-raised); border:1px solid rgba(218,219,212,.95); border-radius:22px; box-shadow:0 18px 38px rgba(26,42,48,.06); }
+  .flash { display:flex; align-items:flex-start; gap:10px; margin:22px 0 0; padding:13px 16px; border:1px solid rgba(189,97,76,.35); border-radius:12px; background:rgba(189,97,76,.08); color:var(--red-flag); font-size:13px; }
+  .flash::before { content:"!"; width:18px; height:18px; display:grid; place-items:center; flex:none; border:1px solid currentColor; border-radius:50%; font-family:var(--mono); font-size:11px; }
+  footer { display:flex; justify-content:space-between; gap:20px; margin-top:70px; padding-top:18px; border-top:1px solid rgba(218,219,212,.9); color:var(--subtle); font-family:var(--mono); font-size:10px; letter-spacing:.03em; }
+
+  @media (max-width: 880px) {
+    .wrap { padding-left:22px; padding-right:22px; }
+    .hero { grid-template-columns:1fr; padding-top:72px; }
+    .hero-copy { max-width:680px; }
+    .signal-visual { min-height:300px; }
+  }
+  @media (max-width: 600px) {
+    .wrap { padding-left:16px; padding-right:16px; }
+    header.top { min-height:66px; }
+    .top-status { font-size:0; gap:0; }
+    .top-status .help { font-size:11px; }
+    .hero { padding-top:54px; padding-bottom:58px; gap:34px; }
+    .hero-copy h1 { font-size:clamp(3rem, 16vw, 4.5rem); }
+    .hero-copy > p { margin-top:24px; font-size:14px; }
+    .signal-visual { min-height:250px; border-radius:20px; }
+    .signal-label { right:16px; bottom:16px; width:180px; padding:13px 14px; }
+    .section-intro { display:block; }
+    .section-intro p { margin-top:12px; text-align:left; }
+    footer { flex-direction:column; gap:8px; margin-top:52px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-copy, .signal-visual, .panel { animation:rise .55s var(--ease-out) both; }
+    .signal-visual { animation-delay:.08s; }
+    @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  }
+  a:focus-visible, button:focus-visible, input:focus-visible { outline:3px solid rgba(24,169,153,.35); outline-offset:3px; }
+  
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    color: var(--brand-blue);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 12px;
+    margin-top: 32px;
+    margin-bottom: 8px;
+    background: transparent;
+    transition: all 0.2s var(--ease-out);
+  }
+  .btn-back:hover {
+    background: var(--canvas-raised);
+    border-color: var(--ink);
+    transform: translateX(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .btn-back svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s var(--ease-out);
+  }
+  .btn-back:hover svg {
+    transform: translateX(-2px);
+  }
+  
+  .nav-link {
+    text-decoration: none;
+    margin-right: 24px;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s var(--ease-out);
+    position: relative;
+    padding: 4px 0;
+  }
+  .nav-link:hover {
+    color: var(--brand-cyan);
+  }
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--brand-cyan);
+    transition: width 0.2s var(--ease-out);
+  }
+  .nav-link:hover::after, .nav-link.active::after {
+    width: 100%;
+  }
+  .nav-link.active {
+    color: var(--brand-cyan);
+  }
+
+
+  /* Centering for Auth Pages */
+  .auth-shell {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .auth-shell .wrap {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
+{% block head %}{% endblock %}
+</head>
+<body>
+<div class="site-shell {% if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'register' or 'password_reset' in request.resolver_match.url_name %}auth-shell{% endif %}">
+<div class="wrap">
+  {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'register' and 'password_reset' not in request.resolver_match.url_name %}
+  <header class="top">
+    {% load static %}
+    <a class="brand-lockup" href="{% url 'landing' %}" aria-label="meslová home" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+      <img src="{% static 'images/meslova-logo.png' %}" alt="meslová logo" style="height: 70px; width: auto; filter: invert(0.15) contrast(1.2);">
+      <span style="height: 20px; width: 1px; background: var(--line); margin: 0 4px;"></span>
+      <span style="font-family: var(--mono); font-size: 9px; font-weight: 600; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;">Career Portal</span>
+    </a>
+    <div class="top-status">
+      {% if not user.is_authenticated %}
+        <a href="{% url 'login' %}" class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}">LOGIN</a>
+        <a href="{% url 'register' %}" class="nav-link {% if request.resolver_match.url_name == 'register' %}active{% endif %}">REGISTRATION</a>
+      {% else %}
+        {% if user.profile.role == 'hr' %}
+          <a href="{% url 'hr_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'hr_dashboard' %}active{% endif %}">DASHBOARD</a>
+          <a href="{% url 'my_jobs' %}" class="nav-link {% if request.resolver_match.url_name == 'my_jobs' or request.resolver_match.url_name == 'applicant_list' or request.resolver_match.url_name == 'application_detail' %}active{% endif %}">MY JOBS</a>
+          <a href="{% url 'talent_pool' %}" class="nav-link {% if request.resolver_match.url_name == 'talent_pool' or request.resolver_match.url_name == 'candidate_directory_profile' %}active{% endif %}">CANDIDATES</a>
+        {% elif user.profile.role == 'candidate' %}
+          <a href="{% url 'candidate_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'candidate_dashboard' %}active{% endif %}">DASHBOARD</a>
+          <a href="{% url 'browse_jobs' %}" class="nav-link {% if request.resolver_match.url_name == 'browse_jobs' or request.resolver_match.url_name == 'job_detail' %}active{% endif %}">JOBS</a>
+          <a href="{% url 'my_applications' %}" class="nav-link {% if request.resolver_match.url_name == 'my_applications' %}active{% endif %}">APPLICATIONS</a>
+        {% endif %}
+        <div class="profile-menu-container" style="position: relative; display: inline-block; margin-right: 24px;">
+          <button id="profileDropdownBtn" onclick="toggleProfileDropdown()" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font: inherit; color: var(--ink); padding: 0;">
+            {% if user.profile.profile_picture %}
+              <img src="{{ user.profile.profile_picture.url }}" alt="Profile" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1px solid var(--line-strong);">
+            {% else %}
+              <div style="width: 26px; height: 26px; border-radius: 50%; background: var(--brand-blue); color: white; display: grid; place-items: center; font-size: 10px; font-weight: 700;">{{ user.username|slice:":2"|upper }}</div>
+            {% endif %}
+            <span style="font-weight: 600; font-size: 11px; letter-spacing: 0.05em;">PROFILE</span>
+          </button>
+          
+          <div id="profileDropdownCard" style="display: none; position: absolute; right: 0; top: 40px; width: 320px; background: white; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.12); z-index: 1000; padding: 24px; text-align: left;">
+            <button onclick="toggleProfileDropdown()" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 16px; cursor: pointer; color: var(--muted);">&times;</button>
+            
+            <div style="display: flex; align-items: center; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--line);">
+              <div style="position: relative; width: 56px; height: 56px; flex: none;">
+                <svg style="width: 56px; height: 56px; transform: rotate(-90deg);">
+                  <circle cx="28" cy="28" r="24" stroke="#e0e0e0" stroke-width="4" fill="none"></circle>
+                  <circle cx="28" cy="28" r="24" stroke="#00AEEF" stroke-width="4" fill="none" stroke-dasharray="150.7" stroke-dashoffset="{{ 150.7|add:'-150.7' }}"></circle>
+                </svg>
+                <div style="position: absolute; inset: 4px; border-radius: 50%; overflow: hidden; display: grid; place-items: center;">
+                  {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture.url }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                  {% else %}
+                    <div style="width: 100%; height: 100%; background: var(--brand-blue); color: white; display: grid; place-items: center; font-size: 14px; font-weight: 700;">{{ user.username|slice:":2"|upper }}</div>
+                  {% endif %}
+                </div>
+                <span style="position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; font-size: 8px; font-weight: 700; padding: 1px 6px; border-radius: 10px;">{{ user.profile.get_completion_percentage }}%</span>
+              </div>
+              <div>
+                <div style="font-weight: 800; font-size: 15px; color: var(--ink); text-transform: uppercase;">{{ user.get_full_name|default:user.username }}</div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">{% if user.profile.role == 'candidate' %}{{ user.profile.headline|default:"Job Candidate at Meslova" }}{% else %}{{ user.profile.department|default:"Recruiter at Meslova Systems" }}{% endif %}</div>
+                <a href="{% url 'profile_view' %}" style="display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 700; color: var(--brand-blue); text-decoration: none;">View & Update Profile &rarr;</a>
+              </div>
+            </div>
+            
+            <div style="padding-top: 12px; display: flex; flex-direction: column; gap: 6px;">
+              <a href="{% url 'landing' %}" style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--ink); text-decoration: none; transition: background 0.15s;" onmouseover="this.style.background='var(--canvas)'" onmouseout="this.style.background='transparent'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; opacity:0.7;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                Meslova Career Blog
+              </a>
+              <a href="{% url 'account_settings' %}" style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--ink); text-decoration: none; transition: background 0.15s;" onmouseover="this.style.background='var(--canvas)'" onmouseout="this.style.background='transparent'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; opacity:0.7;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                Account Settings
+              </a>
+              <a href="{% url 'support' %}" style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--ink); text-decoration: none; transition: background 0.15s;" onmouseover="this.style.background='var(--canvas)'" onmouseout="this.style.background='transparent'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; opacity:0.7;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                FAQs & Support
+              </a>
+              <a href="{% url 'logout' %}" style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--brand-red); text-decoration: none; transition: background 0.15s; margin-top: 4px; border-top: 1px solid var(--line);" onmouseover="this.style.background='rgba(237,28,36,0.06)'" onmouseout="this.style.background='transparent'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                Logout
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <script>
+        function toggleProfileDropdown() {
+          const dropdown = document.getElementById('profileDropdownCard');
+          if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+            dropdown.style.display = 'block';
+          } else {
+            dropdown.style.display = 'none';
+          }
+        }
+        window.addEventListener('click', function(e) {
+          const container = document.querySelector('.profile-menu-container');
+          const dropdown = document.getElementById('profileDropdownCard');
+          if (container && dropdown && !container.contains(e.target)) {
+            dropdown.style.display = 'none';
+          }
+        });
+        </script>
+      {% endif %}
+      <span style="display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase;">
+        <span style="width:7px; height:7px; border-radius:50%; background:var(--teal); box-shadow:0 0 0 5px rgba(24,169,153,.12);"></span>
+        ALL SYSTEMS OPERATIONAL
+        <a href="{% url 'support' %}" class="help" title="Help &amp; Support" aria-label="Help &amp; Support">?</a>
+      </span>
+    </div>
+  </header>
+  {% endif %}
+
+  {% if messages %}
+    {% for m in messages %}<div class="flash" role="alert">{{ m }}</div>{% endfor %}
+  {% endif %}
+  
+  {% block content %}{% endblock %}
+
+  {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'register' and 'password_reset' not in request.resolver_match.url_name %}
+  <footer style="display: flex; justify-content: space-between; align-items: center; padding: 48px 0; border-top: 1px solid var(--line); margin-top: 80px; color: var(--muted); font-size: 11px; font-weight: 500;">
+    <span>&copy; 2026 meslová &middot; Career Portal &middot; AI Everywhere!</span>
+    <div style="display: flex; gap: 24px;">
+      <a href="{% url 'privacy_policy' %}" style="color: var(--muted); text-decoration: none;">Privacy Policy</a>
+      <a href="{% url 'terms_of_service' %}" style="color: var(--muted); text-decoration: none;">Terms of Service</a>
+      <a href="{% url 'support' %}" style="color: var(--muted); text-decoration: none;">Support</a>
+    </div>
+  </footer>
+  {% endif %}
+</div>
+</div>
+
+<button id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" aria-label="Scroll to top" title="Scroll to top" style="position: fixed; right: 24px; bottom: 76px; width: 42px; height: 42px; border-radius: 50%; background: #fff; border: 1px solid var(--line-strong); box-shadow: 0 6px 16px rgba(0,0,0,0.12); display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 500; transition: opacity 0.15s ease;">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+</button>
+<button id="scrollBottomBtn" onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})" aria-label="Scroll to bottom" title="Scroll to bottom" style="position: fixed; right: 24px; bottom: 24px; width: 42px; height: 42px; border-radius: 50%; background: #fff; border: 1px solid var(--line-strong); box-shadow: 0 6px 16px rgba(0,0,0,0.12); display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 500; transition: opacity 0.15s ease;">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+</button>
+<script>
+(function() {
+  var topBtn = document.getElementById('scrollTopBtn');
+  var bottomBtn = document.getElementById('scrollBottomBtn');
+  function updateScrollButtons() {
+    var scrollY = window.scrollY || window.pageYOffset;
+    var pageHeight = document.body.scrollHeight;
+    var viewportHeight = window.innerHeight;
+    // only bother showing these on pages tall enough that scrolling is a real chore
+    var pageIsTall = pageHeight > viewportHeight * 1.5;
+    topBtn.style.display = (pageIsTall && scrollY > 400) ? 'flex' : 'none';
+    bottomBtn.style.display = (pageIsTall && scrollY + viewportHeight < pageHeight - 400) ? 'flex' : 'none';
+  }
+  window.addEventListener('scroll', updateScrollButtons, {passive: true});
+  window.addEventListener('resize', updateScrollButtons);
+  document.addEventListener('DOMContentLoaded', updateScrollButtons);
+  updateScrollButtons();
+})();
+</script>
+</body>
+</html>

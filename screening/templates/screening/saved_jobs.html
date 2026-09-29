@@ -1,0 +1,51 @@
+{% extends "screening/base.html" %}
+{% block title %}Saved Jobs - meslová Career Portal{% endblock %}
+{% block head %}
+<style>
+  .page-head { padding:58px 0 28px; }
+  .page-head h1 { font-size:clamp(2.5rem,5vw,4rem); margin-top:14px; letter-spacing:-.05em; }
+  .page-head p { color:var(--muted); max-width:620px; line-height:1.6; margin-top:14px; }
+  .saved-list { display:grid; gap:16px; }
+  .saved-card { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:24px 28px; background:var(--canvas-raised); border:1px solid var(--line); border-radius:20px; transition:all .2s ease; }
+  .saved-card:hover { border-color:var(--brand-cyan); transform:translateY(-2px); }
+  .saved-card h2 { margin:0 0 7px; font-family:var(--display); font-size:22px; letter-spacing:-.04em; }
+  .saved-meta { color:var(--muted); font-size:13px; line-height:1.6; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 16px; border-radius:11px; font-size:12px; font-weight:700; text-decoration:none; border:1px solid var(--line-strong); color:var(--ink); white-space:nowrap; }
+  .btn:hover { border-color:var(--brand-cyan); color:var(--brand-blue); }
+  .empty { padding:70px 28px; background:var(--canvas-raised); border:1px solid var(--line); border-radius:22px; text-align:center; color:var(--muted); }
+  .empty h2 { color:var(--ink); font-family:var(--display); margin:0 0 10px; }
+  @media(max-width:600px){ .saved-card{align-items:flex-start; flex-direction:column;} .btn{width:100%;} }
+</style>
+{% endblock %}
+{% block content %}
+<a href="{% url 'candidate_dashboard' %}" class="btn-back">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+  Back to dashboard
+</a>
+<section class="page-head">
+  <span class="eyebrow">Candidate / Saved jobs</span>
+  <h1>Your saved jobs.</h1>
+  <p>Keep promising opportunities in one place so you can return to the role details and apply when you are ready.</p>
+</section>
+
+{% if saved_jobs %}
+  <div class="saved-list">
+    {% for saved in saved_jobs %}
+      <article class="saved-card">
+        <div>
+          <h2>{{ saved.job.title }}</h2>
+          <div class="saved-meta">{{ saved.job.company }} &middot; {{ saved.job.location|default:"Remote / flexible" }}{% if saved.job.salary_range %} &middot; {{ saved.job.salary_range }}{% endif %}</div>
+          <div class="saved-meta">Saved {{ saved.saved_at|date:"M d, Y" }}</div>
+        </div>
+        <a class="btn" href="{% url 'job_detail' saved.job.id %}">View role &rarr;</a>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty">
+    <h2>No saved jobs yet.</h2>
+    <p>Save roles from the job board and they will appear here.</p>
+    <a class="btn" href="{% url 'browse_jobs' %}" style="margin-top:18px;">Browse jobs &rarr;</a>
+  </div>
+{% endif %}
+{% endblock %}

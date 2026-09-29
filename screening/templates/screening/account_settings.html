@@ -1,0 +1,146 @@
+{% extends "screening/base.html" %}
+{% block title %}Account Settings - meslová Career Portal{% endblock %}
+{% block head %}
+<style>
+  .page-head { padding: 58px 0 28px; }
+  .page-head h1 { font-size: clamp(2.5rem, 5vw, 4rem); margin-top: 14px; letter-spacing: -0.04em; font-weight: 800; }
+  .page-head p { color: var(--muted); font-size: 15px; margin-top: 16px; max-width: 600px; line-height: 1.6; }
+
+  .form-panel { max-width: 860px; padding: 32px; background: var(--canvas-raised); border: 1px solid var(--line); border-radius: 24px; margin-bottom: 40px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .form-group { margin-bottom: 24px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { display: block; margin-bottom: 10px; color: var(--muted); font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .form-control { width: 100%; padding: 14px 16px; background: #fff; border: 1px solid var(--line-strong); border-radius: 12px; font-family: var(--sans); font-size: 14px; transition: border-color 0.2s ease; }
+  .form-control:focus { outline: none; border-color: var(--brand-cyan); box-shadow: 0 0 0 4px rgba(0, 174, 239, 0.08); }
+
+  .form-help { color: var(--subtle); font-size: 12px; margin-top: 8px; line-height: 1.5; }
+
+  .form-actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; border-top: 1px solid var(--line); padding-top: 24px; margin-top: 8px; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 12px; font-weight: 700; font-size: 13px; text-decoration: none; border: 1px solid transparent; transition: all 0.2s var(--ease-out); cursor: pointer; }
+  .btn-primary { background: var(--brand-cyan); color: #fff; border-color: var(--brand-cyan); }
+  .btn-primary:hover { background: var(--brand-blue); border-color: var(--brand-blue); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+  .btn-outline:hover { background: var(--canvas-raised); border-color: var(--ink); }
+
+  .section-label { font-family: var(--display); font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 4px 0; }
+  .toggle-row .toggle-text { flex: 1; }
+  .toggle-row .toggle-text strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  .toggle-row .toggle-text span { color: var(--subtle); font-size: 13px; line-height: 1.5; }
+  .switch { position: relative; display: inline-block; width: 44px; height: 26px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .track { position: absolute; inset: 0; background: var(--line-strong); border-radius: 999px; cursor: pointer; transition: background 0.2s ease; }
+  .switch .track::before { content: ""; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .switch input:checked + .track { background: var(--brand-cyan); }
+  .switch input:checked + .track::before { transform: translateX(18px); }
+
+  .danger-panel { border-color: rgba(237, 28, 36, 0.25); background: rgba(237, 28, 36, 0.03); }
+  .danger-panel .section-label { color: var(--brand-red); }
+  .btn-danger { background: var(--brand-red); color: #fff; border-color: var(--brand-red); }
+  .btn-danger:hover { background: #c8161d; border-color: #c8161d; }
+
+  @media (max-width: 650px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: auto; }
+    .form-panel { padding: 24px; }
+    .form-actions { flex-direction: column-reverse; align-items: stretch; }
+    .btn { width: 100%; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'profile_view' %}" class="btn-back">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+  Back to profile
+</a>
+
+<section class="page-head">
+  <span class="eyebrow">Account / Settings</span>
+  <h1>Account settings.</h1>
+  <p>Manage your login and account security. Looking to update your name, company, or profile details instead? Head to <a href="{% url 'profile_settings' %}" style="color: var(--brand-blue); font-weight: 700;">Edit Profile</a>.</p>
+</section>
+
+<form method="post" action="{% url 'change_password' %}" class="form-panel">
+  {% csrf_token %}
+  <div class="form-group full" style="margin-bottom: 24px;">
+    <h3 class="section-label">Change password</h3>
+    <p class="form-help" style="margin-top: 0;">You'll stay signed in after changing it.</p>
+  </div>
+  <div class="form-grid">
+    <div class="form-group full">
+      <label for="old_password">Current password</label>
+      <input class="form-control" type="password" id="old_password" name="old_password" autocomplete="current-password">
+    </div>
+    <div class="form-group">
+      <label for="new_password1">New password</label>
+      <input class="form-control" type="password" id="new_password1" name="new_password1" autocomplete="new-password">
+    </div>
+    <div class="form-group">
+      <label for="new_password2">Confirm new password</label>
+      <input class="form-control" type="password" id="new_password2" name="new_password2" autocomplete="new-password">
+    </div>
+  </div>
+  <div class="form-actions">
+    <span></span>
+    <button class="btn btn-primary" type="submit">Update password &rarr;</button>
+  </div>
+</form>
+
+<form method="post" action="{% url 'update_notification_preference' %}" class="form-panel">
+  {% csrf_token %}
+  <div class="form-group full" style="margin-bottom: 20px;">
+    <h3 class="section-label">Email notifications</h3>
+    <p class="form-help" style="margin-top: 0;">Control which emails this account receives.</p>
+  </div>
+  <div class="toggle-row" style="margin-bottom: 24px;">
+    <div class="toggle-text">
+      <strong>Interview and application updates</strong>
+      <span>Emails when an interview is scheduled for one of your applications. Turning this off won't affect what you see in-app - only the email itself.</span>
+    </div>
+    <label class="switch">
+      <input type="checkbox" name="email_notifications_enabled" {% if profile.email_notifications_enabled %}checked{% endif %} onchange="this.form.submit()">
+      <span class="track"></span>
+    </label>
+  </div>
+</form>
+
+<div class="form-panel">
+  <div class="form-group full" style="margin-bottom: 20px;">
+    <h3 class="section-label">Active sessions</h3>
+    <p class="form-help" style="margin-top: 0;">If you signed in on a shared or public computer, or think another device has access to your account, sign it out here. This device stays signed in.</p>
+  </div>
+  <form method="post" action="{% url 'logout_other_sessions' %}">
+    {% csrf_token %}
+    <div class="form-actions" style="border-top: none; padding-top: 0; margin-top: 0; justify-content: flex-start;">
+      <button class="btn btn-outline" type="submit">Log out of all other devices</button>
+    </div>
+  </form>
+</div>
+
+<div class="form-panel danger-panel">
+  <div class="form-group full" style="margin-bottom: 20px;">
+    <h3 class="section-label">Deactivate account</h3>
+    <p class="form-help" style="margin-top: 0;">
+      This signs you out and blocks login on this account. Your jobs, applications, and history are kept, not deleted -
+      an administrator can reactivate the account later if needed. Type your username to confirm.
+    </p>
+  </div>
+  <form method="post" action="{% url 'deactivate_account' %}" onsubmit="return confirm('Deactivate your account? You will be signed out immediately.');">
+    {% csrf_token %}
+    <div class="form-grid" style="margin-bottom: 20px;">
+      <div class="form-group full">
+        <label for="confirm_username">Type your username ({{ user.username }}) to confirm</label>
+        <input class="form-control" type="text" id="confirm_username" name="confirm_username" autocomplete="off" placeholder="{{ user.username }}">
+      </div>
+    </div>
+    <div class="form-actions" style="border-top: none; padding-top: 0; margin-top: 0; justify-content: flex-start;">
+      <button class="btn btn-danger" type="submit">Deactivate my account</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

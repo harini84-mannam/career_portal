@@ -1,0 +1,67 @@
+{% extends "screening/base.html" %}
+{% block title %}Terms of Service - Meslova Systems{% endblock %}
+{% block head %}
+<style>
+  .legal-page { max-width: 820px; margin: 0 auto; padding: 58px 0 90px; }
+  .legal-page .eyebrow { display:inline-flex; align-items:center; gap:10px; color:var(--brand-blue); font-family:var(--mono); font-size:11px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+  .legal-page .eyebrow::before { width:28px; height:2px; background:var(--brand-cyan); content:""; }
+  .legal-page h1 { margin:17px 0 6px; color:var(--brand-blue); font-size:clamp(2.2rem,5vw,3.4rem); font-weight:800; letter-spacing:-.05em; }
+  .legal-page .updated { color:var(--muted); font-size:12px; font-family:var(--mono); text-transform:uppercase; letter-spacing:.05em; margin-bottom:36px; }
+  .legal-section { background:var(--canvas-raised); border:1px solid var(--line); border-radius:20px; padding:28px 32px; margin-bottom:18px; }
+  .legal-section h2 { font-family:var(--display); font-size:18px; font-weight:800; letter-spacing:-.03em; margin:0 0 12px; color:var(--ink); }
+  .legal-section p { color:var(--ink-soft); font-size:14px; line-height:1.75; margin:0 0 12px; }
+  .legal-section p:last-child { margin-bottom:0; }
+  .legal-section ul { margin:0 0 12px; padding-left:20px; color:var(--ink-soft); font-size:14px; line-height:1.75; }
+  .legal-section ul:last-child { margin-bottom:0; }
+  .contact-box { margin-top:8px; padding:16px 18px; border-radius:14px; background:rgba(24,169,153,.08); border:1px solid rgba(24,169,153,.22); font-size:13px; color:var(--ink-soft); }
+  .contact-box a { color:var(--teal-deep); font-weight:700; text-decoration:none; }
+  .contact-box a:hover { text-decoration:underline; }
+  @media(max-width:620px){ .legal-page{padding:36px 0 60px;} .legal-section{padding:22px 20px;} }
+</style>
+{% endblock %}
+{% block content %}
+<div class="legal-page">
+  <span class="eyebrow">Meslova / Legal</span>
+  <h1>Terms of Service.</h1>
+  <p class="updated">Last updated &middot; January 2026</p>
+
+  <div class="legal-section">
+    <h2>Using the platform</h2>
+    <p>Meslova Career Portal is provided to help candidates find roles and to help HR users at hiring companies review and manage applicants. By creating an account, you agree to provide accurate information and to use the platform only for genuine hiring or job-seeking purposes.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2>Candidate accounts</h2>
+    <ul>
+      <li>You're responsible for the accuracy of the profile information, resume, and application materials you submit.</li>
+      <li>Applying to a role shares your application-specific materials with the HR user who posted that job; your general profile is visible to HR users platform-wide via the candidate directory.</li>
+      <li>You may update or delete your profile information at any time from your account settings.</li>
+    </ul>
+  </div>
+
+  <div class="legal-section">
+    <h2>HR / recruiter accounts</h2>
+    <ul>
+      <li>Job postings must accurately describe the role, company, and requirements.</li>
+      <li>Access to candidate information &mdash; whether through an application or the candidate directory &mdash; is provided for legitimate hiring purposes only, and should not be used to contact candidates outside the context of a genuine hiring process.</li>
+      <li>Application status decisions (hired, rejected, etc.) should reflect real hiring outcomes.</li>
+    </ul>
+  </div>
+
+  <div class="legal-section">
+    <h2>Matching scores</h2>
+    <p>Match scores and skill comparisons are generated automatically by comparing resume text against a job's stated requirements. They're a screening aid, not a guarantee of fit, and should be used alongside human judgment rather than as the sole basis for a hiring decision.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2>Account suspension</h2>
+    <p>We may suspend or remove accounts that misuse the platform &mdash; including submitting false information, harvesting candidate data outside a legitimate hiring context, or attempting to disrupt the service.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2>Questions</h2>
+    <p>If anything here is unclear, reach out any time.</p>
+    <div class="contact-box">Email <a href="mailto:support@meslova.com">support@meslova.com</a> or visit our <a href="{% url 'support' %}">Support page</a>.</div>
+  </div>
+</div>
+{% endblock %}

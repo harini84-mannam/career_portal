@@ -1,0 +1,159 @@
+{% extends "screening/base.html" %}
+{% block title %}Sign In - meslová Career Portal{% endblock %}
+{% block head %}
+<style>
+  .auth-wrapper {
+    display: flex;
+    max-width: 900px;
+    width: 100%;
+    background: var(--canvas-raised);
+    border: 1px solid var(--line);
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(18,32,45,0.08);
+  }
+  .auth-sidebar {
+    flex: 1;
+    background: var(--panel);
+    padding: 60px 48px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .auth-sidebar::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(0, 174, 239, 0.1) 0%, transparent 70%);
+    z-index: 0;
+  }
+  .auth-sidebar-content {
+    position: relative;
+    z-index: 1;
+  }
+  .auth-sidebar h2 {
+    font-family: var(--display);
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    letter-spacing: -0.04em;
+  }
+  .auth-sidebar p {
+    color: rgba(255,255,255,0.7);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .auth-main {
+    flex: 1;
+    padding: 60px 56px;
+    background: #fff;
+  }
+  .form-group { margin-bottom: 24px; }
+  .form-group label { display: block; margin-bottom: 8px; color: var(--ink-soft); font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+  .form-control { width: 100%; padding: 14px 18px; border: 1px solid var(--line-strong); border-radius: 14px; background: #fff; font-size: 15px; transition: all 0.2s; }
+  .form-control:focus { border-color: var(--brand-cyan); outline: none; box-shadow: 0 0 0 4px rgba(0, 174, 239, 0.1); }
+  
+  .btn-submit { width: 100%; padding: 16px; background: var(--brand-cyan); color: #fff; border: none; border-radius: 14px; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
+  .btn-submit:hover { background: var(--brand-blue); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 74, 153, 0.2); }
+  
+  .auth-footer { text-align: center; margin-top: 32px; font-size: 14px; color: var(--muted); }
+  .auth-footer a { color: var(--brand-blue); font-weight: 700; text-decoration: none; }
+
+  .password-field { position: relative; }
+  .password-field .form-control { padding-right: 46px; }
+  .password-toggle {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .password-toggle:hover { color: var(--ink); }
+  .password-toggle svg { width: 20px; height: 20px; }
+  .password-toggle .icon-eye-off { display: none; }
+  .password-toggle.is-visible .icon-eye { display: none; }
+  .password-toggle.is-visible .icon-eye-off { display: block; }
+
+  @media (max-width: 800px) {
+    .auth-wrapper { flex-direction: column; max-width: 480px; }
+    .auth-sidebar { padding: 40px; }
+    .auth-main { padding: 40px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  {% load static %}
+  <div class="auth-sidebar">
+    <div class="auth-sidebar-content">
+      <h2>Welcome back to meslová.</h2>
+      <p>Log in to manage your hiring pipeline or track your career progress.</p>
+    </div>
+  </div>
+
+  <div class="auth-main">
+    <div style="margin-bottom: 48px;">
+      <a href="{% url 'landing' %}" style="display: inline-flex; align-items: center; gap: 12px; text-decoration: none;">
+        <img src="{% static 'images/meslova-logo.png' %}" alt="meslová logo" style="height: 42px; width: auto; filter: invert(0.15) contrast(1.2);">
+        <span style="height: 24px; width: 1px; background: var(--line); margin: 0 4px;"></span>
+        <span style="font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;">Career Portal</span>
+      </a>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required autofocus>
+      </div>
+      
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <label for="password" style="margin-bottom: 0;">Password</label>
+          <a href="{% url 'password_reset' %}" style="font-size: 12px; color: var(--brand-blue); text-decoration: none; font-weight: 600;">Forgot?</a>
+        </div>
+        <div class="password-field">
+          <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+          <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password', this)" aria-label="Show password" tabindex="-1">
+            <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a19.9 19.9 0 0 1 5.06-5.94M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a19.86 19.86 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">Sign In</button>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="{% url 'register' %}">Create one</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const isVisible = input.type === 'text';
+    input.type = isVisible ? 'password' : 'text';
+    btn.classList.toggle('is-visible', !isVisible);
+    btn.setAttribute('aria-label', isVisible ? 'Show password' : 'Hide password');
+  }
+</script>
+{% endblock %}
